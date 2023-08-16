@@ -7,6 +7,12 @@ enum Role {
   USER
 }
 
+enum TicketStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 // データベースソースの設定
 datasource db {
   provider = "postgresql"
@@ -21,26 +27,29 @@ generator client {
 // UUIDがプライマリキーの役割を果たす
 // ユーザとプロフィールは1対1の関係
 model User {
-  user_uuid   String   @id @default(uuid())
-  auth_sub    String   @unique
-  handle      String
-  screen_name String
-  bio         String
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
-  role        Role     @default(USER)
-  posts       Post[]
+  user_uuid     String        @id @default(uuid())
+  auth_sub      String        @unique
+  handle        String
+  screen_name   String
+  bio           String
+  tickets_count Int           @default(0)
+  created_at    DateTime      @default(now())
+  updated_at    DateTime      @updatedAt
+  role          Role          @default(USER)
+  transactions  Transaction[]
 }
 
 // 投稿のモデルを定義
 // UUIDがプライマリキーの役割を果たす
-model Post {
-  post_uuid  String   @id @default(uuid()) // UUIDはPrismaのデフォルトの関数を使用
-  user       User     @relation(fields: [userUuid], references: [user_uuid])
-  userUuid   String
-  title      String
-  body       String
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-  is_public  Boolean  @default(false)
+model Transaction {
+  post_uuid        String       @id @default(uuid()) // UUIDはPrismaのデフォルトの関数を使用
+  transaction_hash String
+  amount           Float
+  status           TicketStatus
+  created_at       DateTime     @default(now())
+  updated_at       DateTime     @updatedAt
+  user             User         @relation(fields: [userUuid], references: [user_uuid])
+  userUuid         String
+
+  @@map("Post")
 }
