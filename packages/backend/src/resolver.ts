@@ -21,11 +21,11 @@ export const resolvers: Resolvers<GraphQLContext> = {
     ...PanelMutationResolver,
   },
   // ユーザ型のリゾルバー
-  User: {
-    ...UserTypeResolver,
-  },
-  // 投稿型のリゾルバー
-  Transaction: {
-    ...TransactionTypeResolver,
-  },
+  // User: {
+  //   ...UserTypeResolver,
+  // },
+  // トランザクション型のリゾルバー
+  // Transaction: {
+  //   ...TransactionTypeResolver,
+  // },
 };

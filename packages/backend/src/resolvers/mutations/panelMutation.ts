@@ -9,7 +9,6 @@ import { GraphQLErrorWithCode } from "src/lib/error/error";
 
 const PanelMutationResolver: MutationResolvers<GraphQLContext> = {
   // updateUserForAdminフィールドのリゾルバー
-  // @ts-expect-error postsフィールドが存在しないためエラーが出るが、実際には存在するので無視
   updateUserForAdmin: async (_parent, args, context) => {
     const safeUser = withErrorHandling(
       async (user_uuid: string, prisma: PrismaClient, { bio, handle, screen_name }: { bio?: string; handle?: string; screen_name?: string }) => {
@@ -41,7 +40,6 @@ const PanelMutationResolver: MutationResolvers<GraphQLContext> = {
   },
 
   // deleteUserForAdminフィールドのリゾルバー
-  // @ts-expect-error postsフィールドが存在しないためエラーが出るが、実際には存在するので無視
   deleteUserForAdmin: async (_parent, args, context) => {
     const safeUser = withErrorHandling(async (user_uuid: string, prisma: PrismaClient) => {
       // UUIDからユーザーを取得
@@ -62,7 +60,6 @@ const PanelMutationResolver: MutationResolvers<GraphQLContext> = {
   },
 
   // updateMyUserフィールドのリゾルバー
-  // @ts-expect-error postsフィールドが存在しないためエラーが出るが、実際には存在するので無視
   updateMyUser: async (_parent, args, context) => {
     const safeUser = withErrorHandling(
       async (currentUser_uuid: string, prisma: PrismaClient, { bio, handle, screen_name }: { bio?: string; handle?: string; screen_name?: string }) => {
@@ -95,7 +92,6 @@ const PanelMutationResolver: MutationResolvers<GraphQLContext> = {
   },
 
   // deleteMyUserフィールドのリゾルバー
-  // @ts-expect-error postsフィールドが存在しないためエラーが出るが、実際には存在するので無視
   deleteMyUser: async (_parent, _args, context) => {
     const safeUser = withErrorHandling(async (currentUser_uuid: string, prisma: PrismaClient) => {
       // UUIDからユーザーを取得
@@ -111,99 +107,6 @@ const PanelMutationResolver: MutationResolvers<GraphQLContext> = {
     const { prisma, currentUser } = context;
 
     return await safeUser(currentUser.user_uuid, prisma);
-  },
-
-  // createPostフィールドのリゾルバー
-  // @ts-expect-error postsフィールドが存在しないためエラーが出るが、実際には存在するので無視
-  createPost: async (_parent, args, context) => {
-    const safePost = withErrorHandling(async (currentUser_uuid: string, prisma: PrismaClient, { title, body }: { title: string; body: string }) => {
-      // UUIDからユーザーを取得
-      const result = await prisma.post.create({
-        data: {
-          title: title,
-          body: body,
-          user: {
-            connect: {
-              user_uuid: currentUser_uuid,
-            },
-          },
-        },
-      });
-      return result;
-    });
-
-    // 引数からミューテーションの引数を取得
-    const { title, body } = args;
-    // コンテキストからPrismaクライアントと現在ログインしているユーザーのデータを取得
-    const { prisma, currentUser } = context;
-
-    return await safePost(currentUser.user_uuid, prisma, { title, body });
-  },
-
-  // updatePostフィールドのリゾルバー
-  // @ts-expect-error postsフィールドが存在しないためエラーが出るが、実際には存在するので無視
-  updatePost: async (_parent, args, context) => {
-    const safePost = withErrorHandling(
-      async (currentUser_uuid: string, prisma: PrismaClient, post_uuid: string, { title, body }: { title?: string; body?: string }) => {
-        // UUIDからユーザーを取得
-        const result = await prisma.post.update({
-          where: {
-            userUuid: currentUser_uuid,
-            post_uuid: post_uuid,
-          },
-          data: {
-            title: title,
-            body: body,
-          },
-        });
-
-        // もし削除した投稿が存在しなかった場合はエラーを投げる
-        if (!result) {
-          throw new GraphQLErrorWithCode("item_not_owned");
-        }
-
-        return result;
-      }
-    );
-
-    // 引数からユーザーのUUIDとミューテーションの引数を取得
-    const { post_uuid, title: maybeTitle, body: maybeBody } = args;
-
-    // コンテキストからPrismaクライアントと現在ログインしているユーザーのデータを取得
-    const { prisma, currentUser } = context;
-
-    const title = maybeTitle ?? undefined;
-    const body = maybeBody ?? undefined;
-
-    return await safePost(currentUser.user_uuid, prisma, post_uuid, { title, body });
-  },
-
-  // deletePostフィールドのリゾルバー
-  // @ts-expect-error postsフィールドが存在しないためエラーが出るが、実際には存在するので無視
-  deletePost: async (_parent, args, context) => {
-    const safePost = withErrorHandling(async (currentUser_uuid: string, prisma: PrismaClient, post_uuid: string) => {
-      // UUIDからユーザーを取得
-      const result = await prisma.post.delete({
-        where: {
-          userUuid: currentUser_uuid,
-          post_uuid: post_uuid,
-        },
-      });
-
-      // もし削除した投稿が存在しなかった場合はエラーを投げる
-      if (!result) {
-        throw new GraphQLErrorWithCode("item_not_owned");
-      }
-
-      return result;
-    });
-
-    // 引数からユーザーのUUIDを取得
-    const { post_uuid } = args;
-    // コンテキストからPrismaクライアントを取得
-    const { prisma, currentUser } = context;
-
-    return await safePost(currentUser.user_uuid, prisma, post_uuid);
   },
 };
 

@@ -46,13 +46,13 @@ export type MutationUpdateUserForAdminArgs = {
 };
 
 export type Query = {
-  getAllTransactions: Array<Transaction>;
+  getAllMyTransactions: Array<Transaction>;
   getAllUsers: Array<User>;
   getTransactionByUUID: Transaction;
   getUserByUUID: User;
 };
 
-export type QueryGetAllTransactionsArgs = {
+export type QueryGetAllMyTransactionsArgs = {
   limit?: InputMaybe<Scalars["PositiveInt"]["input"]>;
   offset?: InputMaybe<Scalars["PositiveInt"]["input"]>;
 };
@@ -81,7 +81,6 @@ export type Transaction = {
   transaction_hash: Scalars["String"]["output"];
   transaction_uuid: Scalars["UUID"]["output"];
   updated_at: Scalars["DateTime"]["output"];
-  user: User;
 };
 
 export type User = {
@@ -222,7 +221,12 @@ export interface PositiveIntScalarConfig extends GraphQLScalarTypeConfig<Resolve
 }
 
 export type QueryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes["Query"] = ResolversParentTypes["Query"]> = {
-  getAllTransactions?: Resolver<Array<ResolversTypes["Transaction"]>, ParentType, ContextType, RequireFields<QueryGetAllTransactionsArgs, "limit" | "offset">>;
+  getAllMyTransactions?: Resolver<
+    Array<ResolversTypes["Transaction"]>,
+    ParentType,
+    ContextType,
+    RequireFields<QueryGetAllMyTransactionsArgs, "limit" | "offset">
+  >;
   getAllUsers?: Resolver<Array<ResolversTypes["User"]>, ParentType, ContextType, RequireFields<QueryGetAllUsersArgs, "limit" | "offset">>;
   getTransactionByUUID?: Resolver<ResolversTypes["Transaction"], ParentType, ContextType, RequireFields<QueryGetTransactionByUuidArgs, "uuid">>;
   getUserByUUID?: Resolver<ResolversTypes["User"], ParentType, ContextType, RequireFields<QueryGetUserByUuidArgs, "uuid">>;
@@ -235,7 +239,6 @@ export type TransactionResolvers<ContextType = GraphQLContext, ParentType extend
   transaction_hash?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
   transaction_uuid?: Resolver<ResolversTypes["UUID"], ParentType, ContextType>;
   updated_at?: Resolver<ResolversTypes["DateTime"], ParentType, ContextType>;
-  user?: Resolver<ResolversTypes["User"], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 

@@ -49,7 +49,6 @@ const PanelQueryResolver: QueryResolvers<GraphQLContext> = {
   },
 
   // getTransactionByUUIDクエリのリゾルバー
-  // @ts-expect-error userフィールドが存在しないためエラーが出るが、実際には存在するので無視
   getTransactionByUUID: async (_parent, args, context) => {
     const safeTransaction = withErrorHandling(async (user_uuid: string, prisma: PrismaClient, transaction_uuid: string) => {
       // UUIDからトランザクションを取得
@@ -75,8 +74,7 @@ const PanelQueryResolver: QueryResolvers<GraphQLContext> = {
   },
 
   // getAllTransactionsクエリのリゾルバー
-  // @ts-expect-error userフィールドが存在しないためエラーが出るが、実際には存在するので無視
-  getAllTransactions: async (_parent, args, context) => {
+  getAllMyTransactions: async (_parent, args, context) => {
     const safeTransactions = withErrorHandling(async (user_uuid: string, prisma: PrismaClient, { offset, limit }: { offset: number; limit: number }) => {
       // トランザクションを全件取得
       const result = await prisma.transaction.findMany({
