@@ -3,6 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import { MutationResolvers } from "src/lib/generated/resolver-types";
 import { GraphQLContext } from "src/context";
 import { withErrorHandling } from "src/lib/error/handling";
+import { getTransactionDetails } from "src/lib/transaction_checker/transaction_checker";
 import { GraphQLErrorWithCode } from "src/lib/error/error";
 
 // prismaのupdateは、undefinedな値を渡すと、そのフィールドを更新しないことに留意する
@@ -107,6 +108,109 @@ const PanelMutationResolver: MutationResolvers<GraphQLContext> = {
     const { prisma, currentUser } = context;
 
     return await safeUser(currentUser.user_uuid, prisma);
+  },
+
+  // createTransactionのリゾルバー
+  createTransaction: async (_parent, args, context) => {
+    const safeTransaction = withErrorHandling(async (current_user_uuid: string, prisma: PrismaClient, { amount: amount }: { amount: number }) => {
+      // amountが1につきチケット一枚とする計算
+      const tickets_count = amount * 1;
+
+      // UUIDからユーザーを取得
+      const result = await prisma.transaction.create({
+        data: {
+          amount: amount,
+          tickets_count: tickets_count,
+          transaction_hash: "",
+          status: "PENDING",
+          user: {
+            connect: {
+              user_uuid: current_user_uuid,
+            },
+          },
+        },
+      });
+
+      return result;
+    });
+
+    // 引数からミューテーションの引数を取得
+    const { amount } = args;
+
+    // コンテキストからPrismaクライアントと現在ログインしているユーザーのデータを取得
+    const { prisma, currentUser } = context;
+
+    return await safeTransaction(currentUser.user_uuid, prisma, { amount });
+  },
+
+  // requestTransactionApprovalのリゾルバー
+  requestTransactionApproval: async (_parent, args, context) => {
+    const safeTransaction = withErrorHandling(
+      async (
+        current_user_uuid: string,
+        prisma: PrismaClient,
+        { transaction_uuid: transaction_uuid, transaction_hash: transaction_hash }: { transaction_uuid: string; transaction_hash: string }
+      ) => {
+        // ブロックチェーンのトランザクションハッシュから送金量・送金先アドレスと着金先アドレスを取得
+        const { amount, receiver } = await getTransactionDetails(transaction_hash);
+
+        // データベースのトランザクションから送金量を取得
+        const { amount: require_amount, tickets_count } = await prisma.transaction.findUniqueOrThrow({
+          where: {
+            transaction_uuid: transaction_uuid,
+          },
+        });
+
+        // もし送金量が足りていなければエラーを返す
+        if (amount < require_amount) {
+          throw new GraphQLErrorWithCode("insufficient_amount");
+        }
+
+        // もし送金先アドレスが異なっていればエラーを返す
+        if (receiver !== "0x57dc7A6D9Aa8cc04E8fb629C5AC298b02C85F1e4") {
+          throw new GraphQLErrorWithCode("invalid_receiver");
+        }
+
+        // 成功なのでトランザクションを更新
+
+        // UUIDからユーザーを取得
+        // トランザクションの開始
+        const result = await prisma.$transaction([
+          // UUIDからトランザクションを更新
+          prisma.transaction.update({
+            where: {
+              transaction_uuid: transaction_uuid,
+            },
+            data: {
+              transaction_hash: transaction_hash,
+              status: "APPROVED",
+            },
+          }),
+          // チケット枚数の分だけユーザのチケットを増やす
+          prisma.user.update({
+            where: {
+              user_uuid: current_user_uuid,
+            },
+            data: {
+              tickets_count: {
+                increment: tickets_count,
+              },
+            },
+          }),
+        ]);
+        // トランザクションの終了
+
+        return result[0];
+      }
+    );
+
+    // 引数からミューテーションの引数を取得
+    const { transaction_uuid, transaction_hash } = args;
+
+    // コンテキストからPrismaクライアントと現在ログインしているユーザーのデータを取得
+    const { prisma, currentUser } = context;
+
+    return await safeTransaction(currentUser.user_uuid, prisma, { transaction_uuid, transaction_hash });
   },
 };
 

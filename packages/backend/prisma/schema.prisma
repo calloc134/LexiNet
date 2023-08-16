@@ -7,7 +7,7 @@ enum Role {
   USER
 }
 
-enum TicketStatus {
+enum TransactionStatus {
   PENDING
   APPROVED
   REJECTED
@@ -42,13 +42,14 @@ model User {
 // 投稿のモデルを定義
 // UUIDがプライマリキーの役割を果たす
 model Transaction {
-  transaction_uuid String       @id @default(uuid()) // UUIDはPrismaのデフォルトの関数を使用 @map("post_uuid")
+  transaction_uuid String            @id @default(uuid()) // UUIDはPrismaのデフォルトの関数を使用 @map("post_uuid")
   transaction_hash String
+  tickets_count    Int
   amount           Float
-  status           TicketStatus
-  created_at       DateTime     @default(now())
-  updated_at       DateTime     @updatedAt
-  user             User         @relation(fields: [userUuid], references: [user_uuid])
+  status           TransactionStatus
+  created_at       DateTime          @default(now())
+  updated_at       DateTime          @updatedAt
+  user             User              @relation(fields: [userUuid], references: [user_uuid])
   userUuid         String
 
   @@map("Post")
