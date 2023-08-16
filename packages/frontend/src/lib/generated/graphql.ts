@@ -105,6 +105,7 @@ export type User = {
   posts: Array<Post>;
   role: Role;
   screen_name: Scalars["String"]["output"];
+  tickets: Scalars["Int"]["output"];
   updated_at: Scalars["DateTime"]["output"];
   user_uuid: Scalars["UUID"]["output"];
 };

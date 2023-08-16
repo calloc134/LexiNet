@@ -4,12 +4,20 @@ enum Role {
   USER
 }
 
+enum TransactionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 # UUIDスカラー型を利用するための定義
 scalar UUID
 # DateTimeスカラー型を利用するための定義
 scalar DateTime
 # 正の整数スカラー型を利用するための定義
 scalar PositiveInt
+# 正の浮動小数点数スカラー型を利用するための定義
+scalar PositiveFloat
 
 # authディレクティブを利用するための定義
 directive @auth(role: Role! = USER) on FIELD_DEFINITION
@@ -26,11 +34,10 @@ type Query {
   getAllUsers(offset: PositiveInt = 0, limit: PositiveInt = 10): [User!]! @auth(role: USER)
   # ユーザを取得するクエリ
   getUserByUUID(uuid: UUID!): User! @auth(role: USER)
-
-  # 投稿一覧を取得するクエリ
-  getAllPosts(offset: PositiveInt = 0, limit: PositiveInt = 10): [Post!]! @auth(role: USER)
-  # 投稿を取得するクエリ
-  getPostByUUID(uuid: UUID!): Post! @auth(role: USER)
+  # 自分に紐づくトランザクション一覧を取得するクエリ
+  getAllMyTransactions(offset: PositiveInt = 0, limit: PositiveInt = 10): [Transaction!]! @auth(role: USER)
+  # トランザクションを取得するクエリ
+  getTransactionByUUID(uuid: UUID!): Transaction! @auth(role: USER)
 }
 
 # ミューテーションのスキーマ定義
@@ -47,14 +54,11 @@ type Mutation {
   # 自分のユーザを削除するミューテーション
   deleteMyUser: User! @auth(role: USER)
 
-  # 投稿を作成するミューテーション
-  createPost(title: String!, body: String!): Post! @auth(role: USER)
+  # PENDINGなトランザクションを作成するミューテーション
+  createTransaction(amount: PositiveFloat!): Transaction! @auth(role: USER)
 
-  # 投稿を更新するミューテーション
-  updatePost(post_uuid: UUID!, title: String!, body: String!): Post! @auth(role: USER)
-
-  # 投稿を削除するミューテーション
-  deletePost(post_uuid: UUID!): Post! @auth(role: USER)
+  # PENDINGなトランザクションに対して送金の確認を要求するミューテーション
+  requestTransactionApproval(transaction_uuid: UUID!, transaction_hash: String!): Transaction! @auth(role: USER)
 }
 
 # ユーザ型の定義
@@ -64,21 +68,22 @@ type User {
   handle: String!
   screen_name: String!
   bio: String!
+  tickets_count: PositiveInt!
   created_at: DateTime!
   updated_at: DateTime!
   role: Role!
-  posts(offset: PositiveInt = 0, limit: PositiveInt = 10): [Post!]!
 }
 
 # 投稿型の定義
 # uuidがプライマリキーの役割を果たす
 # userとは1対多の関係
-type Post {
-  post_uuid: UUID!
-  title: String!
-  body: String!
+type Transaction {
+  transaction_uuid: UUID!
+  transaction_hash: String!
+  tickets_count: PositiveInt!
+  amount: PositiveFloat!
+  status: TransactionStatus!
   created_at: DateTime!
   updated_at: DateTime!
-  is_public: Boolean!
-  user: User!
+  # user: User!
 }
