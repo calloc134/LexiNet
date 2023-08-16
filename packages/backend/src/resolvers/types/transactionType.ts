@@ -1,18 +1,17 @@
 import { PrismaClient } from "@prisma/client";
-import { PostResolvers } from "src/lib/generated/resolver-types";
+import { TransactionResolvers } from "src/lib/generated/resolver-types";
 import { GraphQLContext } from "src/context";
 import { withErrorHandling } from "src/lib/error/handling";
 
-const PostTypeResolver: PostResolvers<GraphQLContext> = {
+const TransactionTypeResolver: TransactionResolvers<GraphQLContext> = {
   // ユーザーフィールドのリゾルバー
-  // @ts-expect-error 返却されるpostにuserフィールドが存在しないためエラーが出るが、実際には存在するので無視
   user: async (parent, _args, context) => {
-    const safeUser = withErrorHandling(async (post_uuid: string, prisma: PrismaClient) => {
+    const safeUser = withErrorHandling(async (transaction_uuid: string, prisma: PrismaClient) => {
       // UUIDから投稿を取得
-      const result = await prisma.post
+      const result = await prisma.transaction
         .findUniqueOrThrow({
           where: {
-            post_uuid: post_uuid,
+            transaction_uuid: transaction_uuid,
           },
         })
         // そこから投稿者を取得
@@ -21,12 +20,12 @@ const PostTypeResolver: PostResolvers<GraphQLContext> = {
     });
 
     // ペアレントオブジェクトから投稿のUUIDを取得
-    const { post_uuid } = parent;
+    const { transaction_uuid } = parent;
     // コンテキストからPrismaクライアントを取得
     const { prisma } = context;
 
-    return await safeUser(post_uuid, prisma);
+    return await safeUser(transaction_uuid, prisma);
   },
 };
 
-export { PostTypeResolver };
+export { TransactionTypeResolver };

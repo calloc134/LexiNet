@@ -46,13 +46,24 @@ export type MutationUpdateUserForAdminArgs = {
 };
 
 export type Query = {
+  getAllTransactions: Array<Transaction>;
   getAllUsers: Array<User>;
+  getTransactionByUUID: Transaction;
   getUserByUUID: User;
+};
+
+export type QueryGetAllTransactionsArgs = {
+  limit?: InputMaybe<Scalars["PositiveInt"]["input"]>;
+  offset?: InputMaybe<Scalars["PositiveInt"]["input"]>;
 };
 
 export type QueryGetAllUsersArgs = {
   limit?: InputMaybe<Scalars["PositiveInt"]["input"]>;
   offset?: InputMaybe<Scalars["PositiveInt"]["input"]>;
+};
+
+export type QueryGetTransactionByUuidArgs = {
+  uuid: Scalars["UUID"]["input"];
 };
 
 export type QueryGetUserByUuidArgs = {
@@ -66,9 +77,9 @@ export type TicketStatus = "APPROVED" | "PENDING" | "REJECTED";
 export type Transaction = {
   amount: Scalars["PositiveFloat"]["output"];
   created_at: Scalars["DateTime"]["output"];
-  post_uuid: Scalars["UUID"]["output"];
   status: TicketStatus;
   transaction_hash: Scalars["String"]["output"];
+  transaction_uuid: Scalars["UUID"]["output"];
   updated_at: Scalars["DateTime"]["output"];
   user: User;
 };
@@ -77,17 +88,11 @@ export type User = {
   bio: Scalars["String"]["output"];
   created_at: Scalars["DateTime"]["output"];
   handle: Scalars["String"]["output"];
-  posts: Array<Transaction>;
   role: Role;
   screen_name: Scalars["String"]["output"];
   tickets_count: Scalars["PositiveInt"]["output"];
   updated_at: Scalars["DateTime"]["output"];
   user_uuid: Scalars["UUID"]["output"];
-};
-
-export type UserPostsArgs = {
-  limit?: InputMaybe<Scalars["PositiveInt"]["input"]>;
-  offset?: InputMaybe<Scalars["PositiveInt"]["input"]>;
 };
 
 export type ResolverTypeWrapper<T> = Promise<T> | T;
@@ -217,16 +222,18 @@ export interface PositiveIntScalarConfig extends GraphQLScalarTypeConfig<Resolve
 }
 
 export type QueryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes["Query"] = ResolversParentTypes["Query"]> = {
+  getAllTransactions?: Resolver<Array<ResolversTypes["Transaction"]>, ParentType, ContextType, RequireFields<QueryGetAllTransactionsArgs, "limit" | "offset">>;
   getAllUsers?: Resolver<Array<ResolversTypes["User"]>, ParentType, ContextType, RequireFields<QueryGetAllUsersArgs, "limit" | "offset">>;
+  getTransactionByUUID?: Resolver<ResolversTypes["Transaction"], ParentType, ContextType, RequireFields<QueryGetTransactionByUuidArgs, "uuid">>;
   getUserByUUID?: Resolver<ResolversTypes["User"], ParentType, ContextType, RequireFields<QueryGetUserByUuidArgs, "uuid">>;
 };
 
 export type TransactionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes["Transaction"] = ResolversParentTypes["Transaction"]> = {
   amount?: Resolver<ResolversTypes["PositiveFloat"], ParentType, ContextType>;
   created_at?: Resolver<ResolversTypes["DateTime"], ParentType, ContextType>;
-  post_uuid?: Resolver<ResolversTypes["UUID"], ParentType, ContextType>;
   status?: Resolver<ResolversTypes["TicketStatus"], ParentType, ContextType>;
   transaction_hash?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
+  transaction_uuid?: Resolver<ResolversTypes["UUID"], ParentType, ContextType>;
   updated_at?: Resolver<ResolversTypes["DateTime"], ParentType, ContextType>;
   user?: Resolver<ResolversTypes["User"], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -240,7 +247,6 @@ export type UserResolvers<ContextType = GraphQLContext, ParentType extends Resol
   bio?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
   created_at?: Resolver<ResolversTypes["DateTime"], ParentType, ContextType>;
   handle?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
-  posts?: Resolver<Array<ResolversTypes["Transaction"]>, ParentType, ContextType, RequireFields<UserPostsArgs, "limit" | "offset">>;
   role?: Resolver<ResolversTypes["Role"], ParentType, ContextType>;
   screen_name?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
   tickets_count?: Resolver<ResolversTypes["PositiveInt"], ParentType, ContextType>;

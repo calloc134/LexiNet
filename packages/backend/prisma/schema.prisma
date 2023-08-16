@@ -42,7 +42,7 @@ model User {
 // 投稿のモデルを定義
 // UUIDがプライマリキーの役割を果たす
 model Transaction {
-  post_uuid        String       @id @default(uuid()) // UUIDはPrismaのデフォルトの関数を使用
+  transaction_uuid String       @id @default(uuid()) // UUIDはPrismaのデフォルトの関数を使用 @map("post_uuid")
   transaction_hash String
   amount           Float
   status           TicketStatus

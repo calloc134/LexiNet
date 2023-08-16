@@ -5,8 +5,7 @@ import { GraphQLContext } from "src/context";
 import { withErrorHandling } from "src/lib/error/handling";
 
 const PanelQueryResolver: QueryResolvers<GraphQLContext> = {
-  // userクエリのリゾルバー
-  // @ts-expect-error postsフィールドが存在しないためエラーが出るが、実際には存在するので無視
+  // getUserByUUIDクエリのリゾルバー
   getUserByUUID: async (_parent, args, context) => {
     const safeUser = withErrorHandling(async (prisma: PrismaClient, user_uuid: string) => {
       // UUIDからユーザーを取得
@@ -26,8 +25,7 @@ const PanelQueryResolver: QueryResolvers<GraphQLContext> = {
     return await safeUser(prisma, user_uuid);
   },
 
-  // usersクエリのリゾルバー
-  // @ts-expect-error postsフィールドが存在しないためエラーが出るが、実際には存在するので無視
+  // getAllUsersクエリのリゾルバー
   getAllUsers: async (_parent, args, context) => {
     const safeUsers = withErrorHandling(async (prisma: PrismaClient, { offset, limit }: { offset: number; limit: number }) => {
       // ユーザーを全件取得
@@ -50,55 +48,45 @@ const PanelQueryResolver: QueryResolvers<GraphQLContext> = {
     return await safeUsers(prisma, { limit, offset });
   },
 
-  // postクエリのリゾルバー
+  // getTransactionByUUIDクエリのリゾルバー
   // @ts-expect-error userフィールドが存在しないためエラーが出るが、実際には存在するので無視
-  getPostByUUID: async (_parent, args, context) => {
-    const safePost = withErrorHandling(async (post_uuid: string, prisma: PrismaClient) => {
-      // UUIDから投稿を取得
-      const result = await prisma.post.findUniqueOrThrow({
+  getTransactionByUUID: async (_parent, args, context) => {
+    const safeTransaction = withErrorHandling(async (user_uuid: string, prisma: PrismaClient, transaction_uuid: string) => {
+      // UUIDからトランザクションを取得
+      const result = await prisma.transaction.findUniqueOrThrow({
         where: {
-          post_uuid: post_uuid,
+          transaction_uuid: transaction_uuid,
         },
       });
+
+      // もし自分のトランザクションでなければエラーを返す
+      if (result.userUuid !== user_uuid) {
+        throw new GraphQLErrorWithCode("item_not_owned");
+      }
       return result;
     });
 
-    // 引数から投稿のUUIDを取得
-    const { uuid: post_uuid } = args;
-    // コンテキストからPrismaクライアントと現在ログインしているユーザーのデータを取得
+    // 引数からトランザクションのUUIDを取得
+    const { uuid: transaction_uuid } = args;
+    // コンテキストからPrismaクライアントとログインユーザーを取得
     const { prisma, currentUser } = context;
 
-    const result = await safePost(post_uuid, prisma);
-
-    // もし投稿者が自分でない かつ 投稿が非公開の場合はエラーを返す
-    // TODO: 投稿が非公開の処理を追加
-    if (result.userUuid !== currentUser.user_uuid) {
-      throw new GraphQLErrorWithCode("item_not_owned");
-    }
-
-    return result;
+    return await safeTransaction(currentUser.user_uuid, prisma, transaction_uuid);
   },
 
-  // postsクエリのリゾルバー
+  // getAllTransactionsクエリのリゾルバー
   // @ts-expect-error userフィールドが存在しないためエラーが出るが、実際には存在するので無視
-  getAllPosts: async (_parent, args, context) => {
-    const safePosts = withErrorHandling(async (currentUser_uuid: string, prisma: PrismaClient, { offset, limit }: { offset: number; limit: number }) => {
-      const result = await prisma.post.findMany({
-        // 投稿が自分でない かつ 非公開のものは除外する
-        // つまり、投稿が自分 または 公開のもののみ取得する
+  getAllTransactions: async (_parent, args, context) => {
+    const safeTransactions = withErrorHandling(async (user_uuid: string, prisma: PrismaClient, { offset, limit }: { offset: number; limit: number }) => {
+      // トランザクションを全件取得
+      const result = await prisma.transaction.findMany({
         where: {
-          OR: [
-            {
-              userUuid: currentUser_uuid,
-            },
-            {
-              is_public: true,
-            },
-          ],
+          // ログインユーザーのトランザクションのみ取得
+          userUuid: user_uuid,
         },
         skip: offset,
         take: limit,
-        // 投稿を新しい順に並び替える
+        // トランザクションを新しい順に並び替える
         orderBy: {
           created_at: "desc",
         },
@@ -109,10 +97,10 @@ const PanelQueryResolver: QueryResolvers<GraphQLContext> = {
     // 引数からページネーションのoffsetとlimitを取得
     const { offset, limit } = args;
 
-    // コンテキストからPrismaクライアントと現在ログインしているユーザーのデータを取得
+    // コンテキストからPrismaクライアントを取得
     const { prisma, currentUser } = context;
 
-    return await safePosts(currentUser.user_uuid, prisma, { limit, offset });
+    return await safeTransactions(currentUser.user_uuid, prisma, { limit, offset });
   },
 };
 
