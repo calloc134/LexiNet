@@ -5,8 +5,8 @@ import { NotFoundPage } from "./404";
 import { ProtectedRouter } from "./lib/route/ProtectedRouter";
 import { UsersPage } from "./features/users/pages/UsersPage";
 import { UserDetailPage } from "./features/users/pages/UserDetailPage";
-import { PostsPage } from "./features/posts/pages/PostsPage";
-import { PostDetailPage } from "./features/posts/pages/PostDetailPage";
+import { TransactionsPage } from "./features/transactions/pages/TransactionsPage";
+import { TransactionDetailPage } from "./features/transactions/pages/TransactionDetailPage";
 import { CallBackPage } from "./callback";
 
 // 以下、ルーティングの設定
@@ -63,7 +63,7 @@ const authenticatedUserRoute = new Route({
 const authenticatedPostRoute = new Route({
   // 親ルートを指定
   getParentRoute: () => protectedRoute,
-  path: "posts",
+  path: "transactions",
 });
 
 // auth/usersルート インデックスの設定
@@ -83,19 +83,19 @@ const userDetailRoute = new Route({
 });
 
 // auth/postsルート インデックスの設定
-const postsRoute = new Route({
+const transactionsRoute = new Route({
   // 親ルートを指定
   getParentRoute: () => authenticatedPostRoute,
   path: "/",
-  component: () => <PostsPage />,
+  component: () => <TransactionsPage />,
 });
 
 // auth/posts/$post_uuidルートの設定
-const postDetailRoute = new Route({
+const transactionDetailRoute = new Route({
   // 親ルートを指定
   getParentRoute: () => authenticatedPostRoute,
-  path: "$post_uuid",
-  component: () => <PostDetailPage />,
+  path: "$transactions_uuid",
+  component: () => <TransactionDetailPage />,
 });
 
 const router = new Router({
@@ -105,7 +105,7 @@ const router = new Router({
     callbackRoute,
     protectedRoute.addChildren([
       authenticatedUserRoute.addChildren([usersRoute, userDetailRoute]),
-      authenticatedPostRoute.addChildren([postsRoute, postDetailRoute]),
+      authenticatedPostRoute.addChildren([transactionsRoute, transactionDetailRoute]),
     ]),
   ]),
 });

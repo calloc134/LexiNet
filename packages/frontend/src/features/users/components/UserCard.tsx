@@ -8,9 +8,6 @@ const UserFragment = graphql(`
     user_uuid
     handle
     screen_name
-    posts {
-      ...PostPopupFragment
-    }
   }
 `);
 

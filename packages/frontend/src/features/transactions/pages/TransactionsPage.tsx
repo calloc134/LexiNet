@@ -1,21 +1,21 @@
 import { useQuery } from "urql";
 import { graphql } from "src/lib/generated/gql";
-import { PostCard } from "../components/PostCard";
+import { TransactionCard } from "../components/TransactionCard";
 import { Spinner } from "@nextui-org/react";
 
 // 利用されるクエリの定義
-const GetAllPostsQuery = graphql(`
-  query GetAllPostsQuery {
-    getAllPosts(limit: 10) {
-      ...PostFragment
+const GetAllTransactionsQuery = graphql(`
+  query GetAllMyTransactionsQuery {
+    getAllMyTransactions(limit: 10) {
+      ...TransactionFragment
     }
   }
 `);
 
-const PostsPage = () => {
+const TransactionsPage = () => {
   // graphqlに対してクエリを実行
   const [result] = useQuery({
-    query: GetAllPostsQuery,
+    query: GetAllTransactionsQuery,
   });
 
   const { data, fetching } = result;
@@ -30,8 +30,8 @@ const PostsPage = () => {
   return (
     <div className="flex flex-col items-center justify-between h-screen">
       <div className="flex flex-col w-8/12">
-        {data?.getAllPosts.map((post, i) => (
-          <PostCard key={i} post={post} />
+        {data?.getAllMyTransactions.map((transaction, i) => (
+          <TransactionCard key={i} transaction={transaction} />
         ))}
       </div>
     </div>
@@ -39,4 +39,4 @@ const PostsPage = () => {
   // graphqlのフラグメントマスキングでやむを得ずmapのkeyでiを使っているので、少し心配
 };
 
-export { PostsPage };
+export { TransactionsPage };

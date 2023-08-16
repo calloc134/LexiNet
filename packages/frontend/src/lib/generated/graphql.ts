@@ -15,43 +15,37 @@ export type Scalars = {
   Int: { input: number; output: number };
   Float: { input: number; output: number };
   DateTime: { input: Date; output: Date };
+  PositiveFloat: { input: number; output: number };
   PositiveInt: { input: number; output: number };
   UUID: { input: string; output: string };
 };
 
 export type Mutation = {
-  createPost: Post;
+  createTransaction: Transaction;
   deleteMyUser: User;
-  deletePost: Post;
   deleteUserForAdmin: User;
+  requestTransactionApproval: Transaction;
   updateMyUser: User;
-  updatePost: Post;
   updateUserForAdmin: User;
 };
 
-export type MutationCreatePostArgs = {
-  body: Scalars["String"]["input"];
-  title: Scalars["String"]["input"];
-};
-
-export type MutationDeletePostArgs = {
-  post_uuid: Scalars["UUID"]["input"];
+export type MutationCreateTransactionArgs = {
+  amount: Scalars["PositiveFloat"]["input"];
 };
 
 export type MutationDeleteUserForAdminArgs = {
   user_uuid: Scalars["UUID"]["input"];
 };
 
+export type MutationRequestTransactionApprovalArgs = {
+  transaction_hash: Scalars["String"]["input"];
+  transaction_uuid: Scalars["UUID"]["input"];
+};
+
 export type MutationUpdateMyUserArgs = {
   bio?: InputMaybe<Scalars["String"]["input"]>;
   handle?: InputMaybe<Scalars["String"]["input"]>;
   screen_name?: InputMaybe<Scalars["String"]["input"]>;
-};
-
-export type MutationUpdatePostArgs = {
-  body: Scalars["String"]["input"];
-  post_uuid: Scalars["UUID"]["input"];
-  title: Scalars["String"]["input"];
 };
 
 export type MutationUpdateUserForAdminArgs = {
@@ -61,24 +55,14 @@ export type MutationUpdateUserForAdminArgs = {
   user_uuid: Scalars["UUID"]["input"];
 };
 
-export type Post = {
-  body: Scalars["String"]["output"];
-  created_at: Scalars["DateTime"]["output"];
-  is_public: Scalars["Boolean"]["output"];
-  post_uuid: Scalars["UUID"]["output"];
-  title: Scalars["String"]["output"];
-  updated_at: Scalars["DateTime"]["output"];
-  user: User;
-};
-
 export type Query = {
-  getAllPosts: Array<Post>;
+  getAllMyTransactions: Array<Transaction>;
   getAllUsers: Array<User>;
-  getPostByUUID: Post;
+  getTransactionByUUID: Transaction;
   getUserByUUID: User;
 };
 
-export type QueryGetAllPostsArgs = {
+export type QueryGetAllMyTransactionsArgs = {
   limit?: InputMaybe<Scalars["PositiveInt"]["input"]>;
   offset?: InputMaybe<Scalars["PositiveInt"]["input"]>;
 };
@@ -88,7 +72,7 @@ export type QueryGetAllUsersArgs = {
   offset?: InputMaybe<Scalars["PositiveInt"]["input"]>;
 };
 
-export type QueryGetPostByUuidArgs = {
+export type QueryGetTransactionByUuidArgs = {
   uuid: Scalars["UUID"]["input"];
 };
 
@@ -98,62 +82,58 @@ export type QueryGetUserByUuidArgs = {
 
 export type Role = "ADMIN" | "USER";
 
+export type Transaction = {
+  amount: Scalars["PositiveFloat"]["output"];
+  created_at: Scalars["DateTime"]["output"];
+  status: TransactionStatus;
+  tickets_count: Scalars["PositiveInt"]["output"];
+  transaction_hash: Scalars["String"]["output"];
+  transaction_uuid: Scalars["UUID"]["output"];
+  updated_at: Scalars["DateTime"]["output"];
+};
+
+export type TransactionStatus = "APPROVED" | "PENDING" | "REJECTED";
+
 export type User = {
   bio: Scalars["String"]["output"];
   created_at: Scalars["DateTime"]["output"];
   handle: Scalars["String"]["output"];
-  posts: Array<Post>;
   role: Role;
   screen_name: Scalars["String"]["output"];
-  tickets: Scalars["Int"]["output"];
+  tickets_count: Scalars["PositiveInt"]["output"];
   updated_at: Scalars["DateTime"]["output"];
   user_uuid: Scalars["UUID"]["output"];
 };
 
-export type UserPostsArgs = {
-  limit?: InputMaybe<Scalars["PositiveInt"]["input"]>;
-  offset?: InputMaybe<Scalars["PositiveInt"]["input"]>;
+export type TransactionFragmentFragment = { transaction_uuid: string; tickets_count: number; amount: number; status: TransactionStatus } & {
+  " $fragmentName"?: "TransactionFragmentFragment";
 };
 
-export type PostFragmentFragment = {
-  post_uuid: string;
-  title: string;
-  body: string;
-  user: { " $fragmentRefs"?: { UserPopupFragmentFragment: UserPopupFragmentFragment } };
-} & { " $fragmentName"?: "PostFragmentFragment" };
-
-export type PostDetailFragmentFragment = {
-  post_uuid: string;
-  title: string;
-  body: string;
+export type TransactionDetailFragmentFragment = {
+  transaction_uuid: string;
+  transaction_hash: string;
+  tickets_count: number;
+  amount: number;
+  status: TransactionStatus;
   created_at: Date;
   updated_at: Date;
-  is_public: boolean;
-  user: { " $fragmentRefs"?: { UserPopupFragmentFragment: UserPopupFragmentFragment } };
-} & { " $fragmentName"?: "PostDetailFragmentFragment" };
+} & { " $fragmentName"?: "TransactionDetailFragmentFragment" };
 
-export type UserPopupFragmentFragment = { user_uuid: string; handle: string; screen_name: string; bio: string } & {
-  " $fragmentName"?: "UserPopupFragmentFragment";
-};
-
-export type GetPostDetailQueryQueryVariables = Exact<{
+export type GetTransactionDetailQueryQueryVariables = Exact<{
   uuid: Scalars["UUID"]["input"];
 }>;
 
-export type GetPostDetailQueryQuery = { getPostByUUID: { " $fragmentRefs"?: { PostDetailFragmentFragment: PostDetailFragmentFragment } } };
+export type GetTransactionDetailQueryQuery = {
+  getTransactionByUUID: { " $fragmentRefs"?: { TransactionDetailFragmentFragment: TransactionDetailFragmentFragment } };
+};
 
-export type GetAllPostsQueryQueryVariables = Exact<{ [key: string]: never }>;
+export type GetAllMyTransactionsQueryQueryVariables = Exact<{ [key: string]: never }>;
 
-export type GetAllPostsQueryQuery = { getAllPosts: Array<{ " $fragmentRefs"?: { PostFragmentFragment: PostFragmentFragment } }> };
+export type GetAllMyTransactionsQueryQuery = {
+  getAllMyTransactions: Array<{ " $fragmentRefs"?: { TransactionFragmentFragment: TransactionFragmentFragment } }>;
+};
 
-export type PostPopupFragmentFragment = { post_uuid: string; title: string; body: string } & { " $fragmentName"?: "PostPopupFragmentFragment" };
-
-export type UserFragmentFragment = {
-  user_uuid: string;
-  handle: string;
-  screen_name: string;
-  posts: Array<{ " $fragmentRefs"?: { PostPopupFragmentFragment: PostPopupFragmentFragment } }>;
-} & { " $fragmentName"?: "UserFragmentFragment" };
+export type UserFragmentFragment = { user_uuid: string; handle: string; screen_name: string } & { " $fragmentName"?: "UserFragmentFragment" };
 
 export type UserDetailFragmentFragment = {
   user_uuid: string;
@@ -163,7 +143,6 @@ export type UserDetailFragmentFragment = {
   created_at: Date;
   updated_at: Date;
   role: Role;
-  posts: Array<{ " $fragmentRefs"?: { PostPopupFragmentFragment: PostPopupFragmentFragment } }>;
 } & { " $fragmentName"?: "UserDetailFragmentFragment" };
 
 export type UserDetailFragmentQueryVariables = Exact<{
@@ -176,120 +155,47 @@ export type GetUsersQueryQueryVariables = Exact<{ [key: string]: never }>;
 
 export type GetUsersQueryQuery = { getAllUsers: Array<{ " $fragmentRefs"?: { UserFragmentFragment: UserFragmentFragment } }> };
 
-export const UserPopupFragmentFragmentDoc = {
+export const TransactionFragmentFragmentDoc = {
   kind: "Document",
   definitions: [
     {
       kind: "FragmentDefinition",
-      name: { kind: "Name", value: "UserPopupFragment" },
-      typeCondition: { kind: "NamedType", name: { kind: "Name", value: "User" } },
+      name: { kind: "Name", value: "TransactionFragment" },
+      typeCondition: { kind: "NamedType", name: { kind: "Name", value: "Transaction" } },
       selectionSet: {
         kind: "SelectionSet",
         selections: [
-          { kind: "Field", name: { kind: "Name", value: "user_uuid" } },
-          { kind: "Field", name: { kind: "Name", value: "handle" } },
-          { kind: "Field", name: { kind: "Name", value: "screen_name" } },
-          { kind: "Field", name: { kind: "Name", value: "bio" } },
+          { kind: "Field", name: { kind: "Name", value: "transaction_uuid" } },
+          { kind: "Field", name: { kind: "Name", value: "tickets_count" } },
+          { kind: "Field", name: { kind: "Name", value: "amount" } },
+          { kind: "Field", name: { kind: "Name", value: "status" } },
         ],
       },
     },
   ],
-} as unknown as DocumentNode<UserPopupFragmentFragment, unknown>;
-export const PostFragmentFragmentDoc = {
+} as unknown as DocumentNode<TransactionFragmentFragment, unknown>;
+export const TransactionDetailFragmentFragmentDoc = {
   kind: "Document",
   definitions: [
     {
       kind: "FragmentDefinition",
-      name: { kind: "Name", value: "PostFragment" },
-      typeCondition: { kind: "NamedType", name: { kind: "Name", value: "Post" } },
+      name: { kind: "Name", value: "TransactionDetailFragment" },
+      typeCondition: { kind: "NamedType", name: { kind: "Name", value: "Transaction" } },
       selectionSet: {
         kind: "SelectionSet",
         selections: [
-          { kind: "Field", name: { kind: "Name", value: "post_uuid" } },
-          { kind: "Field", name: { kind: "Name", value: "title" } },
-          { kind: "Field", name: { kind: "Name", value: "body" } },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "user" },
-            selectionSet: { kind: "SelectionSet", selections: [{ kind: "FragmentSpread", name: { kind: "Name", value: "UserPopupFragment" } }] },
-          },
-        ],
-      },
-    },
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "UserPopupFragment" },
-      typeCondition: { kind: "NamedType", name: { kind: "Name", value: "User" } },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          { kind: "Field", name: { kind: "Name", value: "user_uuid" } },
-          { kind: "Field", name: { kind: "Name", value: "handle" } },
-          { kind: "Field", name: { kind: "Name", value: "screen_name" } },
-          { kind: "Field", name: { kind: "Name", value: "bio" } },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<PostFragmentFragment, unknown>;
-export const PostDetailFragmentFragmentDoc = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "PostDetailFragment" },
-      typeCondition: { kind: "NamedType", name: { kind: "Name", value: "Post" } },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          { kind: "Field", name: { kind: "Name", value: "post_uuid" } },
-          { kind: "Field", name: { kind: "Name", value: "title" } },
-          { kind: "Field", name: { kind: "Name", value: "body" } },
+          { kind: "Field", name: { kind: "Name", value: "transaction_uuid" } },
+          { kind: "Field", name: { kind: "Name", value: "transaction_hash" } },
+          { kind: "Field", name: { kind: "Name", value: "tickets_count" } },
+          { kind: "Field", name: { kind: "Name", value: "amount" } },
+          { kind: "Field", name: { kind: "Name", value: "status" } },
           { kind: "Field", name: { kind: "Name", value: "created_at" } },
           { kind: "Field", name: { kind: "Name", value: "updated_at" } },
-          { kind: "Field", name: { kind: "Name", value: "is_public" } },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "user" },
-            selectionSet: { kind: "SelectionSet", selections: [{ kind: "FragmentSpread", name: { kind: "Name", value: "UserPopupFragment" } }] },
-          },
-        ],
-      },
-    },
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "UserPopupFragment" },
-      typeCondition: { kind: "NamedType", name: { kind: "Name", value: "User" } },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          { kind: "Field", name: { kind: "Name", value: "user_uuid" } },
-          { kind: "Field", name: { kind: "Name", value: "handle" } },
-          { kind: "Field", name: { kind: "Name", value: "screen_name" } },
-          { kind: "Field", name: { kind: "Name", value: "bio" } },
         ],
       },
     },
   ],
-} as unknown as DocumentNode<PostDetailFragmentFragment, unknown>;
-export const PostPopupFragmentFragmentDoc = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "PostPopupFragment" },
-      typeCondition: { kind: "NamedType", name: { kind: "Name", value: "Post" } },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          { kind: "Field", name: { kind: "Name", value: "post_uuid" } },
-          { kind: "Field", name: { kind: "Name", value: "title" } },
-          { kind: "Field", name: { kind: "Name", value: "body" } },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<PostPopupFragmentFragment, unknown>;
+} as unknown as DocumentNode<TransactionDetailFragmentFragment, unknown>;
 export const UserFragmentFragmentDoc = {
   kind: "Document",
   definitions: [
@@ -303,24 +209,6 @@ export const UserFragmentFragmentDoc = {
           { kind: "Field", name: { kind: "Name", value: "user_uuid" } },
           { kind: "Field", name: { kind: "Name", value: "handle" } },
           { kind: "Field", name: { kind: "Name", value: "screen_name" } },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "posts" },
-            selectionSet: { kind: "SelectionSet", selections: [{ kind: "FragmentSpread", name: { kind: "Name", value: "PostPopupFragment" } }] },
-          },
-        ],
-      },
-    },
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "PostPopupFragment" },
-      typeCondition: { kind: "NamedType", name: { kind: "Name", value: "Post" } },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          { kind: "Field", name: { kind: "Name", value: "post_uuid" } },
-          { kind: "Field", name: { kind: "Name", value: "title" } },
-          { kind: "Field", name: { kind: "Name", value: "body" } },
         ],
       },
     },
@@ -343,36 +231,18 @@ export const UserDetailFragmentFragmentDoc = {
           { kind: "Field", name: { kind: "Name", value: "created_at" } },
           { kind: "Field", name: { kind: "Name", value: "updated_at" } },
           { kind: "Field", name: { kind: "Name", value: "role" } },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "posts" },
-            selectionSet: { kind: "SelectionSet", selections: [{ kind: "FragmentSpread", name: { kind: "Name", value: "PostPopupFragment" } }] },
-          },
-        ],
-      },
-    },
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "PostPopupFragment" },
-      typeCondition: { kind: "NamedType", name: { kind: "Name", value: "Post" } },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          { kind: "Field", name: { kind: "Name", value: "post_uuid" } },
-          { kind: "Field", name: { kind: "Name", value: "title" } },
-          { kind: "Field", name: { kind: "Name", value: "body" } },
         ],
       },
     },
   ],
 } as unknown as DocumentNode<UserDetailFragmentFragment, unknown>;
-export const GetPostDetailQueryDocument = {
+export const GetTransactionDetailQueryDocument = {
   kind: "Document",
   definitions: [
     {
       kind: "OperationDefinition",
       operation: "query",
-      name: { kind: "Name", value: "GetPostDetailQuery" },
+      name: { kind: "Name", value: "GetTransactionDetailQuery" },
       variableDefinitions: [
         {
           kind: "VariableDefinition",
@@ -385,103 +255,67 @@ export const GetPostDetailQueryDocument = {
         selections: [
           {
             kind: "Field",
-            name: { kind: "Name", value: "getPostByUUID" },
+            name: { kind: "Name", value: "getTransactionByUUID" },
             arguments: [{ kind: "Argument", name: { kind: "Name", value: "uuid" }, value: { kind: "Variable", name: { kind: "Name", value: "uuid" } } }],
-            selectionSet: { kind: "SelectionSet", selections: [{ kind: "FragmentSpread", name: { kind: "Name", value: "PostDetailFragment" } }] },
+            selectionSet: { kind: "SelectionSet", selections: [{ kind: "FragmentSpread", name: { kind: "Name", value: "TransactionDetailFragment" } }] },
           },
         ],
       },
     },
     {
       kind: "FragmentDefinition",
-      name: { kind: "Name", value: "UserPopupFragment" },
-      typeCondition: { kind: "NamedType", name: { kind: "Name", value: "User" } },
+      name: { kind: "Name", value: "TransactionDetailFragment" },
+      typeCondition: { kind: "NamedType", name: { kind: "Name", value: "Transaction" } },
       selectionSet: {
         kind: "SelectionSet",
         selections: [
-          { kind: "Field", name: { kind: "Name", value: "user_uuid" } },
-          { kind: "Field", name: { kind: "Name", value: "handle" } },
-          { kind: "Field", name: { kind: "Name", value: "screen_name" } },
-          { kind: "Field", name: { kind: "Name", value: "bio" } },
-        ],
-      },
-    },
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "PostDetailFragment" },
-      typeCondition: { kind: "NamedType", name: { kind: "Name", value: "Post" } },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          { kind: "Field", name: { kind: "Name", value: "post_uuid" } },
-          { kind: "Field", name: { kind: "Name", value: "title" } },
-          { kind: "Field", name: { kind: "Name", value: "body" } },
+          { kind: "Field", name: { kind: "Name", value: "transaction_uuid" } },
+          { kind: "Field", name: { kind: "Name", value: "transaction_hash" } },
+          { kind: "Field", name: { kind: "Name", value: "tickets_count" } },
+          { kind: "Field", name: { kind: "Name", value: "amount" } },
+          { kind: "Field", name: { kind: "Name", value: "status" } },
           { kind: "Field", name: { kind: "Name", value: "created_at" } },
           { kind: "Field", name: { kind: "Name", value: "updated_at" } },
-          { kind: "Field", name: { kind: "Name", value: "is_public" } },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "user" },
-            selectionSet: { kind: "SelectionSet", selections: [{ kind: "FragmentSpread", name: { kind: "Name", value: "UserPopupFragment" } }] },
-          },
         ],
       },
     },
   ],
-} as unknown as DocumentNode<GetPostDetailQueryQuery, GetPostDetailQueryQueryVariables>;
-export const GetAllPostsQueryDocument = {
+} as unknown as DocumentNode<GetTransactionDetailQueryQuery, GetTransactionDetailQueryQueryVariables>;
+export const GetAllMyTransactionsQueryDocument = {
   kind: "Document",
   definitions: [
     {
       kind: "OperationDefinition",
       operation: "query",
-      name: { kind: "Name", value: "GetAllPostsQuery" },
+      name: { kind: "Name", value: "GetAllMyTransactionsQuery" },
       selectionSet: {
         kind: "SelectionSet",
         selections: [
           {
             kind: "Field",
-            name: { kind: "Name", value: "getAllPosts" },
+            name: { kind: "Name", value: "getAllMyTransactions" },
             arguments: [{ kind: "Argument", name: { kind: "Name", value: "limit" }, value: { kind: "IntValue", value: "10" } }],
-            selectionSet: { kind: "SelectionSet", selections: [{ kind: "FragmentSpread", name: { kind: "Name", value: "PostFragment" } }] },
+            selectionSet: { kind: "SelectionSet", selections: [{ kind: "FragmentSpread", name: { kind: "Name", value: "TransactionFragment" } }] },
           },
         ],
       },
     },
     {
       kind: "FragmentDefinition",
-      name: { kind: "Name", value: "UserPopupFragment" },
-      typeCondition: { kind: "NamedType", name: { kind: "Name", value: "User" } },
+      name: { kind: "Name", value: "TransactionFragment" },
+      typeCondition: { kind: "NamedType", name: { kind: "Name", value: "Transaction" } },
       selectionSet: {
         kind: "SelectionSet",
         selections: [
-          { kind: "Field", name: { kind: "Name", value: "user_uuid" } },
-          { kind: "Field", name: { kind: "Name", value: "handle" } },
-          { kind: "Field", name: { kind: "Name", value: "screen_name" } },
-          { kind: "Field", name: { kind: "Name", value: "bio" } },
-        ],
-      },
-    },
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "PostFragment" },
-      typeCondition: { kind: "NamedType", name: { kind: "Name", value: "Post" } },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          { kind: "Field", name: { kind: "Name", value: "post_uuid" } },
-          { kind: "Field", name: { kind: "Name", value: "title" } },
-          { kind: "Field", name: { kind: "Name", value: "body" } },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "user" },
-            selectionSet: { kind: "SelectionSet", selections: [{ kind: "FragmentSpread", name: { kind: "Name", value: "UserPopupFragment" } }] },
-          },
+          { kind: "Field", name: { kind: "Name", value: "transaction_uuid" } },
+          { kind: "Field", name: { kind: "Name", value: "tickets_count" } },
+          { kind: "Field", name: { kind: "Name", value: "amount" } },
+          { kind: "Field", name: { kind: "Name", value: "status" } },
         ],
       },
     },
   ],
-} as unknown as DocumentNode<GetAllPostsQueryQuery, GetAllPostsQueryQueryVariables>;
+} as unknown as DocumentNode<GetAllMyTransactionsQueryQuery, GetAllMyTransactionsQueryQueryVariables>;
 export const UserDetailFragmentDocument = {
   kind: "Document",
   definitions: [
@@ -510,19 +344,6 @@ export const UserDetailFragmentDocument = {
     },
     {
       kind: "FragmentDefinition",
-      name: { kind: "Name", value: "PostPopupFragment" },
-      typeCondition: { kind: "NamedType", name: { kind: "Name", value: "Post" } },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          { kind: "Field", name: { kind: "Name", value: "post_uuid" } },
-          { kind: "Field", name: { kind: "Name", value: "title" } },
-          { kind: "Field", name: { kind: "Name", value: "body" } },
-        ],
-      },
-    },
-    {
-      kind: "FragmentDefinition",
       name: { kind: "Name", value: "UserDetailFragment" },
       typeCondition: { kind: "NamedType", name: { kind: "Name", value: "User" } },
       selectionSet: {
@@ -535,11 +356,6 @@ export const UserDetailFragmentDocument = {
           { kind: "Field", name: { kind: "Name", value: "created_at" } },
           { kind: "Field", name: { kind: "Name", value: "updated_at" } },
           { kind: "Field", name: { kind: "Name", value: "role" } },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "posts" },
-            selectionSet: { kind: "SelectionSet", selections: [{ kind: "FragmentSpread", name: { kind: "Name", value: "PostPopupFragment" } }] },
-          },
         ],
       },
     },
@@ -566,19 +382,6 @@ export const GetUsersQueryDocument = {
     },
     {
       kind: "FragmentDefinition",
-      name: { kind: "Name", value: "PostPopupFragment" },
-      typeCondition: { kind: "NamedType", name: { kind: "Name", value: "Post" } },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          { kind: "Field", name: { kind: "Name", value: "post_uuid" } },
-          { kind: "Field", name: { kind: "Name", value: "title" } },
-          { kind: "Field", name: { kind: "Name", value: "body" } },
-        ],
-      },
-    },
-    {
-      kind: "FragmentDefinition",
       name: { kind: "Name", value: "UserFragment" },
       typeCondition: { kind: "NamedType", name: { kind: "Name", value: "User" } },
       selectionSet: {
@@ -587,11 +390,6 @@ export const GetUsersQueryDocument = {
           { kind: "Field", name: { kind: "Name", value: "user_uuid" } },
           { kind: "Field", name: { kind: "Name", value: "handle" } },
           { kind: "Field", name: { kind: "Name", value: "screen_name" } },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "posts" },
-            selectionSet: { kind: "SelectionSet", selections: [{ kind: "FragmentSpread", name: { kind: "Name", value: "PostPopupFragment" } }] },
-          },
         ],
       },
     },
