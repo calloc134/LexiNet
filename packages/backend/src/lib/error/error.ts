@@ -31,6 +31,8 @@ const error_code = {
   insufficient_amount: "INSUFFICIENT_AMOUNT",
   // 送金先アドレスが異なるエラー
   invalid_receiver: "INVALID_RECEIVER",
+  // トランザクションがすでに登録されているエラー
+  transaction_already_exists: "TRANSACTION_ALREADY_EXISTS",
 
   // その他のエラー
   unknown_error: "UNKNOWN_ERROR",
@@ -54,6 +56,7 @@ const error_message: { [key in ErrorCode]: string } = {
   unknown_error: "❓ Unknown error",
   insufficient_amount: "💰 Insufficient amount",
   invalid_receiver: "📭 Invalid receiver",
+  transaction_already_exists: "🔄 Transaction already exists",
 };
 
 // カスタムのエラークラス

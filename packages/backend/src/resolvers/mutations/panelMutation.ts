@@ -1,10 +1,9 @@
 import { PrismaClient } from "@prisma/client";
-// import { GraphQLErrorWithCode } from "src/lib/error/error";
+import { GraphQLErrorWithCode } from "src/lib/error/error";
 import { MutationResolvers } from "src/lib/generated/resolver-types";
 import { GraphQLContext } from "src/context";
 import { withErrorHandling } from "src/lib/error/handling";
 import { getTransactionDetails } from "src/lib/transaction_checker/transaction_checker";
-import { GraphQLErrorWithCode } from "src/lib/error/error";
 
 // prismaのupdateは、undefinedな値を渡すと、そのフィールドを更新しないことに留意する
 
@@ -113,8 +112,8 @@ const PanelMutationResolver: MutationResolvers<GraphQLContext> = {
   // createTransactionのリゾルバー
   createTransaction: async (_parent, args, context) => {
     const safeTransaction = withErrorHandling(async (current_user_uuid: string, prisma: PrismaClient, { amount: amount }: { amount: number }) => {
-      // amountが1につきチケット一枚とする計算
-      const tickets_count = amount * 1;
+      // amountが0.0001につきチケット一枚とする計算
+      const tickets_count = Math.floor(amount * 10000);
 
       // UUIDからユーザーを取得
       const result = await prisma.transaction.create({
@@ -167,8 +166,24 @@ const PanelMutationResolver: MutationResolvers<GraphQLContext> = {
         }
 
         // もし送金先アドレスが異なっていればエラーを返す
-        if (receiver !== "0x57dc7A6D9Aa8cc04E8fb629C5AC298b02C85F1e4") {
+        if (receiver !== "0x57dc7A6D9Aa8cc04E8fb629C5AC298b02C85F1e4".toLocaleLowerCase()) {
           throw new GraphQLErrorWithCode("invalid_receiver");
+        }
+
+        // また、データベースで同一のトランザクションがあればエラーを返す
+        if (
+          (
+            await prisma.transaction.findMany({
+              where: {
+                transaction_hash: transaction_hash,
+              },
+              select: {
+                transaction_uuid: true,
+              },
+            })
+          ).length > 0
+        ) {
+          throw new GraphQLErrorWithCode("transaction_already_exists");
         }
 
         // 成功なのでトランザクションを更新
