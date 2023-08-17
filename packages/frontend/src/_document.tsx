@@ -60,7 +60,7 @@ export const Document = () => {
                 />
               ) : (
                 <Tooltip content="ログイン/登録" color="secondary">
-                  <Button color="primary" variant="shadow" className="hover:-translate-y-1">
+                  <Button variant="shadow" className="hover:-translate-y-1">
                     <Link to="/auth/transactions">
                       <Login size={20} />
                     </Link>

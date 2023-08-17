@@ -1,4 +1,4 @@
-import { Textarea, Card, CardBody, Button } from "@nextui-org/react";
+import { Textarea, Card, CardBody, Button, Spinner } from "@nextui-org/react";
 import { useForm } from "react-hook-form";
 import { graphql } from "src/lib/generated";
 import toast, { Toaster } from "react-hot-toast";
@@ -53,30 +53,46 @@ const ChatPage = () => {
 
   return (
     <div className="flex flex-col items-center justify-center">
-      <Card>
-        <CardBody>
-          <p>保持チケット枚数: {result.data?.getMyUser.tickets_count}</p>
-        </CardBody>
-      </Card>
-      <Card>
-        <CardBody>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <Textarea placeholder="テキストを入力してください" {...register("text", { required: true })} />
-            <Button type="submit" />
-          </form>
-        </CardBody>
-      </Card>
-      <Card>
-        <CardBody>
-          <p>{data.data?.chatGPT.text}</p>
-        </CardBody>
-      </Card>
-      <Toaster
-        position="bottom-right"
-        toastOptions={{
-          duration: 5000,
-        }}
-      />
+      <div className="flex flex-col w-8/12">
+        <div className="space-y-4">
+          <Card>
+            <CardBody>
+              {
+                <div className="flex flex-col items-center justify-center">
+                  {result.fetching ? <Spinner label="読み込み中..." color="primary" /> : <p>現在の保持チケット枚数: {result.data?.getMyUser.tickets_count}</p>}
+                </div>
+              }
+            </CardBody>
+          </Card>
+          <Card>
+            <CardBody>
+              <form onSubmit={handleSubmit(onSubmit)}>
+                <Textarea placeholder="テキストを入力してください" {...register("text", { required: true })} />
+                <Button type="submit" variant="shadow" color="primary" className="w-full">
+                  送信
+                </Button>
+              </form>
+            </CardBody>
+          </Card>
+          <Card>
+            <CardBody>
+              {data.fetching ? (
+                <div className="flex flex-col items-center justify-center">
+                  <Spinner label="読み込み中..." color="primary" />
+                </div>
+              ) : (
+                <p>{data.data?.chatGPT.text}</p>
+              )}
+            </CardBody>
+          </Card>
+          <Toaster
+            position="bottom-right"
+            toastOptions={{
+              duration: 5000,
+            }}
+          />
+        </div>
+      </div>
     </div>
   );
 };

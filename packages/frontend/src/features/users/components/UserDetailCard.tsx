@@ -32,7 +32,7 @@ const UserDetailCard = ({ user: user_frag }: { user: FragmentType<typeof UserDet
       </CardBody>
       <CardFooter className="flex flex-col justify-end items-end">
         <div>
-          <Button color="primary" variant="shadow" className="rounded-full hover:-translate-y-1">
+          <Button variant="shadow" className="rounded-full hover:-translate-y-1">
             <Link
               to="/auth/users/$user_uuid"
               params={{

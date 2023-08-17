@@ -72,7 +72,7 @@ const TransactionsPage = () => {
         <form onSubmit={handleSubmit(onSubmit)}>
           <Input className="w-8/12" placeholder="金額量" {...register("amountString")} />
           {errors.amountString && <span>This field is required</span>}
-          <Button type="submit" className="w-full">
+          <Button type="submit" variant="shadow" color="primary" className="w-full">
             送信
           </Button>
         </form>
@@ -90,7 +90,9 @@ const TransactionsPage = () => {
                 <ModalHeader>トランザクション</ModalHeader>
                 <ModalBody>トランザクションを作成しました。</ModalBody>
                 <ModalFooter>
-                  <Button onClick={onClose}>閉じる</Button>
+                  <Button onClick={onClose} variant="shadow">
+                    閉じる
+                  </Button>
                 </ModalFooter>
               </>
             )}
