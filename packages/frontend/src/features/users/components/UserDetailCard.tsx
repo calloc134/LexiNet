@@ -12,9 +12,6 @@ const UserDetailFragment = graphql(`
     created_at
     updated_at
     role
-    posts {
-      ...PostPopupFragment
-    }
   }
 `);
 

@@ -7,6 +7,7 @@ import { router } from "./route";
 import { AuthnProvider } from "./lib/provider/authn/AuthnProvider";
 import { UrqlProvider } from "./lib/provider/urql/UrqlProvider";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
+import { MetaMaskProvider } from "metamask-react";
 import { is_dev } from "./env";
 import "src/index.css";
 
@@ -25,11 +26,13 @@ export const Main = () => {
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <AuthnProvider>
-      <UrqlProvider>
-        <NextUIProvider>
-          <Main />
-        </NextUIProvider>
-      </UrqlProvider>
+      <MetaMaskProvider>
+        <UrqlProvider>
+          <NextUIProvider>
+            <Main />
+          </NextUIProvider>
+        </UrqlProvider>
+      </MetaMaskProvider>
     </AuthnProvider>
   </React.StrictMode>
 );

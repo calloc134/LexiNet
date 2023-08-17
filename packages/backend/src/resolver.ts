@@ -1,8 +1,8 @@
 import { GraphQLContext } from "./context";
 import { Resolvers } from "./lib/generated/resolver-types";
 import { resolvers as scalarResolvers } from "graphql-scalars";
-import { UserTypeResolver } from "./resolvers/types/userType";
-import { PostTypeResolver } from "./resolvers/types/postType";
+// import { UserTypeResolver } from "./resolvers/types/userType";
+// import { TransactionTypeResolver } from "./resolvers/types/transactionType";
 import { PanelQueryResolver } from "./resolvers/queries/panelQuery";
 import { PanelMutationResolver } from "./resolvers/mutations/panelMutation";
 
@@ -21,11 +21,11 @@ export const resolvers: Resolvers<GraphQLContext> = {
     ...PanelMutationResolver,
   },
   // ユーザ型のリゾルバー
-  User: {
-    ...UserTypeResolver,
-  },
-  // 投稿型のリゾルバー
-  Post: {
-    ...PostTypeResolver,
-  },
+  // User: {
+  //   ...UserTypeResolver,
+  // },
+  // トランザクション型のリゾルバー
+  // Transaction: {
+  //   ...TransactionTypeResolver,
+  // },
 };

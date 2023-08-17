@@ -13,17 +13,18 @@ import type { TypedDocumentNode as DocumentNode } from "@graphql-typed-document-
  * Therefore it is highly recommended to use the babel or swc plugin for production.
  */
 const documents = {
-  "\n  fragment PostFragment on Post {\n    post_uuid\n    title\n    body\n    user {\n      ...UserPopupFragment\n    }\n  }\n":
-    types.PostFragmentFragmentDoc,
-  "\n  fragment PostDetailFragment on Post {\n    post_uuid\n    title\n    body\n    created_at\n    updated_at\n    is_public\n    user {\n      ...UserPopupFragment\n    }\n  }\n":
-    types.PostDetailFragmentFragmentDoc,
-  "\n  fragment UserPopupFragment on User {\n    user_uuid\n    handle\n    screen_name\n    bio\n  }\n": types.UserPopupFragmentFragmentDoc,
-  "\n  query GetPostDetailQuery($uuid: UUID!) {\n    getPostByUUID(uuid: $uuid) {\n      ...PostDetailFragment\n    }\n  }\n": types.GetPostDetailQueryDocument,
-  "\n  query GetAllPostsQuery {\n    getAllPosts(limit: 10) {\n      ...PostFragment\n    }\n  }\n": types.GetAllPostsQueryDocument,
-  "\n  fragment PostPopupFragment on Post {\n    post_uuid\n    title\n    body\n  }\n": types.PostPopupFragmentFragmentDoc,
-  "\n  fragment UserFragment on User {\n    user_uuid\n    handle\n    screen_name\n    posts {\n      ...PostPopupFragment\n    }\n  }\n":
-    types.UserFragmentFragmentDoc,
-  "\n  fragment UserDetailFragment on User {\n    user_uuid\n    handle\n    screen_name\n    bio\n    created_at\n    updated_at\n    role\n    posts {\n      ...PostPopupFragment\n    }\n  }\n":
+  "\n  fragment TransactionFragment on Transaction {\n    transaction_uuid\n    tickets_count\n    amount\n    status\n  }\n":
+    types.TransactionFragmentFragmentDoc,
+  "\n  fragment TransactionDetailFragment on Transaction {\n    transaction_uuid\n    transaction_hash\n    tickets_count\n    amount\n    status\n    created_at\n    updated_at\n  }\n":
+    types.TransactionDetailFragmentFragmentDoc,
+  "\n  query GetTransactionDetailQuery($uuid: UUID!) {\n    getTransactionByUUID(uuid: $uuid) {\n      ...TransactionDetailFragment\n    }\n  }\n":
+    types.GetTransactionDetailQueryDocument,
+  "\n  query GetAllMyTransactionsQuery {\n    getAllMyTransactions(limit: 10) {\n      ...TransactionFragment\n    }\n  }\n":
+    types.GetAllMyTransactionsQueryDocument,
+  "\n  mutation CreateTransactionMutation($amount: PositiveFloat!) {\n    createTransaction(amount: $amount) {\n      ...TransactionFragment\n    }\n  }\n":
+    types.CreateTransactionMutationDocument,
+  "\n  fragment UserFragment on User {\n    user_uuid\n    handle\n    screen_name\n  }\n": types.UserFragmentFragmentDoc,
+  "\n  fragment UserDetailFragment on User {\n    user_uuid\n    handle\n    screen_name\n    bio\n    created_at\n    updated_at\n    role\n  }\n":
     types.UserDetailFragmentFragmentDoc,
   "\n  query UserDetailFragment($uuid: UUID!) {\n    getUserByUUID(uuid: $uuid) {\n      ...UserDetailFragment\n    }\n  }\n": types.UserDetailFragmentDocument,
   "\n  query GetUsersQuery {\n    getAllUsers(limit: 10) {\n      ...UserFragment\n    }\n  }\n": types.GetUsersQueryDocument,
@@ -47,50 +48,44 @@ export function graphql(source: string): unknown;
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: "\n  fragment PostFragment on Post {\n    post_uuid\n    title\n    body\n    user {\n      ...UserPopupFragment\n    }\n  }\n"
-): (typeof documents)["\n  fragment PostFragment on Post {\n    post_uuid\n    title\n    body\n    user {\n      ...UserPopupFragment\n    }\n  }\n"];
+  source: "\n  fragment TransactionFragment on Transaction {\n    transaction_uuid\n    tickets_count\n    amount\n    status\n  }\n"
+): (typeof documents)["\n  fragment TransactionFragment on Transaction {\n    transaction_uuid\n    tickets_count\n    amount\n    status\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: "\n  fragment PostDetailFragment on Post {\n    post_uuid\n    title\n    body\n    created_at\n    updated_at\n    is_public\n    user {\n      ...UserPopupFragment\n    }\n  }\n"
-): (typeof documents)["\n  fragment PostDetailFragment on Post {\n    post_uuid\n    title\n    body\n    created_at\n    updated_at\n    is_public\n    user {\n      ...UserPopupFragment\n    }\n  }\n"];
+  source: "\n  fragment TransactionDetailFragment on Transaction {\n    transaction_uuid\n    transaction_hash\n    tickets_count\n    amount\n    status\n    created_at\n    updated_at\n  }\n"
+): (typeof documents)["\n  fragment TransactionDetailFragment on Transaction {\n    transaction_uuid\n    transaction_hash\n    tickets_count\n    amount\n    status\n    created_at\n    updated_at\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: "\n  fragment UserPopupFragment on User {\n    user_uuid\n    handle\n    screen_name\n    bio\n  }\n"
-): (typeof documents)["\n  fragment UserPopupFragment on User {\n    user_uuid\n    handle\n    screen_name\n    bio\n  }\n"];
+  source: "\n  query GetTransactionDetailQuery($uuid: UUID!) {\n    getTransactionByUUID(uuid: $uuid) {\n      ...TransactionDetailFragment\n    }\n  }\n"
+): (typeof documents)["\n  query GetTransactionDetailQuery($uuid: UUID!) {\n    getTransactionByUUID(uuid: $uuid) {\n      ...TransactionDetailFragment\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: "\n  query GetPostDetailQuery($uuid: UUID!) {\n    getPostByUUID(uuid: $uuid) {\n      ...PostDetailFragment\n    }\n  }\n"
-): (typeof documents)["\n  query GetPostDetailQuery($uuid: UUID!) {\n    getPostByUUID(uuid: $uuid) {\n      ...PostDetailFragment\n    }\n  }\n"];
+  source: "\n  query GetAllMyTransactionsQuery {\n    getAllMyTransactions(limit: 10) {\n      ...TransactionFragment\n    }\n  }\n"
+): (typeof documents)["\n  query GetAllMyTransactionsQuery {\n    getAllMyTransactions(limit: 10) {\n      ...TransactionFragment\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: "\n  query GetAllPostsQuery {\n    getAllPosts(limit: 10) {\n      ...PostFragment\n    }\n  }\n"
-): (typeof documents)["\n  query GetAllPostsQuery {\n    getAllPosts(limit: 10) {\n      ...PostFragment\n    }\n  }\n"];
+  source: "\n  mutation CreateTransactionMutation($amount: PositiveFloat!) {\n    createTransaction(amount: $amount) {\n      ...TransactionFragment\n    }\n  }\n"
+): (typeof documents)["\n  mutation CreateTransactionMutation($amount: PositiveFloat!) {\n    createTransaction(amount: $amount) {\n      ...TransactionFragment\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: "\n  fragment PostPopupFragment on Post {\n    post_uuid\n    title\n    body\n  }\n"
-): (typeof documents)["\n  fragment PostPopupFragment on Post {\n    post_uuid\n    title\n    body\n  }\n"];
+  source: "\n  fragment UserFragment on User {\n    user_uuid\n    handle\n    screen_name\n  }\n"
+): (typeof documents)["\n  fragment UserFragment on User {\n    user_uuid\n    handle\n    screen_name\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: "\n  fragment UserFragment on User {\n    user_uuid\n    handle\n    screen_name\n    posts {\n      ...PostPopupFragment\n    }\n  }\n"
-): (typeof documents)["\n  fragment UserFragment on User {\n    user_uuid\n    handle\n    screen_name\n    posts {\n      ...PostPopupFragment\n    }\n  }\n"];
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(
-  source: "\n  fragment UserDetailFragment on User {\n    user_uuid\n    handle\n    screen_name\n    bio\n    created_at\n    updated_at\n    role\n    posts {\n      ...PostPopupFragment\n    }\n  }\n"
-): (typeof documents)["\n  fragment UserDetailFragment on User {\n    user_uuid\n    handle\n    screen_name\n    bio\n    created_at\n    updated_at\n    role\n    posts {\n      ...PostPopupFragment\n    }\n  }\n"];
+  source: "\n  fragment UserDetailFragment on User {\n    user_uuid\n    handle\n    screen_name\n    bio\n    created_at\n    updated_at\n    role\n  }\n"
+): (typeof documents)["\n  fragment UserDetailFragment on User {\n    user_uuid\n    handle\n    screen_name\n    bio\n    created_at\n    updated_at\n    role\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

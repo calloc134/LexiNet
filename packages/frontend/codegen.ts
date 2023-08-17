@@ -14,6 +14,7 @@ const config: CodegenConfig = {
           UUID: "string",
           DateTime: "Date",
           PositiveInt: "number",
+          PositiveFloat: "number",
         },
         enumsAsTypes: true,
         skipTypename: true,

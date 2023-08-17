@@ -1,15 +1,14 @@
 import { PrismaClient } from "@prisma/client";
-// import { GraphQLErrorWithCode } from "src/lib/error/error";
+import { GraphQLErrorWithCode } from "src/lib/error/error";
 import { MutationResolvers } from "src/lib/generated/resolver-types";
 import { GraphQLContext } from "src/context";
 import { withErrorHandling } from "src/lib/error/handling";
-import { GraphQLErrorWithCode } from "src/lib/error/error";
+import { getTransactionDetails } from "src/lib/transaction_checker/transaction_checker";
 
 // prismaのupdateは、undefinedな値を渡すと、そのフィールドを更新しないことに留意する
 
 const PanelMutationResolver: MutationResolvers<GraphQLContext> = {
   // updateUserForAdminフィールドのリゾルバー
-  // @ts-expect-error postsフィールドが存在しないためエラーが出るが、実際には存在するので無視
   updateUserForAdmin: async (_parent, args, context) => {
     const safeUser = withErrorHandling(
       async (user_uuid: string, prisma: PrismaClient, { bio, handle, screen_name }: { bio?: string; handle?: string; screen_name?: string }) => {
@@ -41,7 +40,6 @@ const PanelMutationResolver: MutationResolvers<GraphQLContext> = {
   },
 
   // deleteUserForAdminフィールドのリゾルバー
-  // @ts-expect-error postsフィールドが存在しないためエラーが出るが、実際には存在するので無視
   deleteUserForAdmin: async (_parent, args, context) => {
     const safeUser = withErrorHandling(async (user_uuid: string, prisma: PrismaClient) => {
       // UUIDからユーザーを取得
@@ -62,7 +60,6 @@ const PanelMutationResolver: MutationResolvers<GraphQLContext> = {
   },
 
   // updateMyUserフィールドのリゾルバー
-  // @ts-expect-error postsフィールドが存在しないためエラーが出るが、実際には存在するので無視
   updateMyUser: async (_parent, args, context) => {
     const safeUser = withErrorHandling(
       async (currentUser_uuid: string, prisma: PrismaClient, { bio, handle, screen_name }: { bio?: string; handle?: string; screen_name?: string }) => {
@@ -95,7 +92,6 @@ const PanelMutationResolver: MutationResolvers<GraphQLContext> = {
   },
 
   // deleteMyUserフィールドのリゾルバー
-  // @ts-expect-error postsフィールドが存在しないためエラーが出るが、実際には存在するので無視
   deleteMyUser: async (_parent, _args, context) => {
     const safeUser = withErrorHandling(async (currentUser_uuid: string, prisma: PrismaClient) => {
       // UUIDからユーザーを取得
@@ -113,97 +109,123 @@ const PanelMutationResolver: MutationResolvers<GraphQLContext> = {
     return await safeUser(currentUser.user_uuid, prisma);
   },
 
-  // createPostフィールドのリゾルバー
-  // @ts-expect-error postsフィールドが存在しないためエラーが出るが、実際には存在するので無視
-  createPost: async (_parent, args, context) => {
-    const safePost = withErrorHandling(async (currentUser_uuid: string, prisma: PrismaClient, { title, body }: { title: string; body: string }) => {
+  // createTransactionのリゾルバー
+  createTransaction: async (_parent, args, context) => {
+    const safeTransaction = withErrorHandling(async (current_user_uuid: string, prisma: PrismaClient, { amount: amount }: { amount: number }) => {
+      // amountが0.0001につきチケット一枚とする計算
+      const tickets_count = Math.floor(amount * 10000);
+
       // UUIDからユーザーを取得
-      const result = await prisma.post.create({
+      const result = await prisma.transaction.create({
         data: {
-          title: title,
-          body: body,
+          amount: amount,
+          tickets_count: tickets_count,
+          transaction_hash: "",
+          status: "PENDING",
           user: {
             connect: {
-              user_uuid: currentUser_uuid,
+              user_uuid: current_user_uuid,
             },
           },
         },
       });
+
       return result;
     });
 
     // 引数からミューテーションの引数を取得
-    const { title, body } = args;
+    const { amount } = args;
+
     // コンテキストからPrismaクライアントと現在ログインしているユーザーのデータを取得
     const { prisma, currentUser } = context;
 
-    return await safePost(currentUser.user_uuid, prisma, { title, body });
+    return await safeTransaction(currentUser.user_uuid, prisma, { amount });
   },
 
-  // updatePostフィールドのリゾルバー
-  // @ts-expect-error postsフィールドが存在しないためエラーが出るが、実際には存在するので無視
-  updatePost: async (_parent, args, context) => {
-    const safePost = withErrorHandling(
-      async (currentUser_uuid: string, prisma: PrismaClient, post_uuid: string, { title, body }: { title?: string; body?: string }) => {
-        // UUIDからユーザーを取得
-        const result = await prisma.post.update({
+  // requestTransactionApprovalのリゾルバー
+  requestTransactionApproval: async (_parent, args, context) => {
+    const safeTransaction = withErrorHandling(
+      async (
+        current_user_uuid: string,
+        prisma: PrismaClient,
+        { transaction_uuid: transaction_uuid, transaction_hash: transaction_hash }: { transaction_uuid: string; transaction_hash: string }
+      ) => {
+        // ブロックチェーンのトランザクションハッシュから送金量・送金先アドレスと着金先アドレスを取得
+        const { amount, receiver } = await getTransactionDetails(transaction_hash);
+
+        // データベースのトランザクションから送金量を取得
+        const { amount: require_amount, tickets_count } = await prisma.transaction.findUniqueOrThrow({
           where: {
-            userUuid: currentUser_uuid,
-            post_uuid: post_uuid,
-          },
-          data: {
-            title: title,
-            body: body,
+            transaction_uuid: transaction_uuid,
           },
         });
 
-        // もし削除した投稿が存在しなかった場合はエラーを投げる
-        if (!result) {
-          throw new GraphQLErrorWithCode("item_not_owned");
+        // もし送金量が足りていなければエラーを返す
+        if (amount < require_amount) {
+          throw new GraphQLErrorWithCode("insufficient_amount");
         }
 
-        return result;
+        // もし送金先アドレスが異なっていればエラーを返す
+        if (receiver !== "0x57dc7A6D9Aa8cc04E8fb629C5AC298b02C85F1e4".toLocaleLowerCase()) {
+          throw new GraphQLErrorWithCode("invalid_receiver");
+        }
+
+        // また、データベースで同一のトランザクションがあればエラーを返す
+        if (
+          (
+            await prisma.transaction.findMany({
+              where: {
+                transaction_hash: transaction_hash,
+              },
+              select: {
+                transaction_uuid: true,
+              },
+            })
+          ).length > 0
+        ) {
+          throw new GraphQLErrorWithCode("transaction_already_exists");
+        }
+
+        // 成功なのでトランザクションを更新
+
+        // UUIDからユーザーを取得
+        // トランザクションの開始
+        const result = await prisma.$transaction([
+          // UUIDからトランザクションを更新
+          prisma.transaction.update({
+            where: {
+              transaction_uuid: transaction_uuid,
+            },
+            data: {
+              transaction_hash: transaction_hash,
+              status: "APPROVED",
+            },
+          }),
+          // チケット枚数の分だけユーザのチケットを増やす
+          prisma.user.update({
+            where: {
+              user_uuid: current_user_uuid,
+            },
+            data: {
+              tickets_count: {
+                increment: tickets_count,
+              },
+            },
+          }),
+        ]);
+        // トランザクションの終了
+
+        return result[0];
       }
     );
 
-    // 引数からユーザーのUUIDとミューテーションの引数を取得
-    const { post_uuid, title: maybeTitle, body: maybeBody } = args;
+    // 引数からミューテーションの引数を取得
+    const { transaction_uuid, transaction_hash } = args;
 
     // コンテキストからPrismaクライアントと現在ログインしているユーザーのデータを取得
     const { prisma, currentUser } = context;
 
-    const title = maybeTitle ?? undefined;
-    const body = maybeBody ?? undefined;
-
-    return await safePost(currentUser.user_uuid, prisma, post_uuid, { title, body });
-  },
-
-  // deletePostフィールドのリゾルバー
-  // @ts-expect-error postsフィールドが存在しないためエラーが出るが、実際には存在するので無視
-  deletePost: async (_parent, args, context) => {
-    const safePost = withErrorHandling(async (currentUser_uuid: string, prisma: PrismaClient, post_uuid: string) => {
-      // UUIDからユーザーを取得
-      const result = await prisma.post.delete({
-        where: {
-          userUuid: currentUser_uuid,
-          post_uuid: post_uuid,
-        },
-      });
-
-      // もし削除した投稿が存在しなかった場合はエラーを投げる
-      if (!result) {
-        throw new GraphQLErrorWithCode("item_not_owned");
-      }
-
-      return result;
-    });
-
-    // 引数からユーザーのUUIDを取得
-    const { post_uuid } = args;
-    // コンテキストからPrismaクライアントを取得
-    const { prisma, currentUser } = context;
-
-    return await safePost(currentUser.user_uuid, prisma, post_uuid);
+    return await safeTransaction(currentUser.user_uuid, prisma, { transaction_uuid, transaction_hash });
   },
 };
 

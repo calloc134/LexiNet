@@ -16,43 +16,37 @@ export type Scalars = {
   Int: { input: number; output: number };
   Float: { input: number; output: number };
   DateTime: { input: Date; output: Date };
+  PositiveFloat: { input: number; output: number };
   PositiveInt: { input: number; output: number };
   UUID: { input: string; output: string };
 };
 
 export type Mutation = {
-  createPost: Post;
+  createTransaction: Transaction;
   deleteMyUser: User;
-  deletePost: Post;
   deleteUserForAdmin: User;
+  requestTransactionApproval: Transaction;
   updateMyUser: User;
-  updatePost: Post;
   updateUserForAdmin: User;
 };
 
-export type MutationCreatePostArgs = {
-  body: Scalars["String"]["input"];
-  title: Scalars["String"]["input"];
-};
-
-export type MutationDeletePostArgs = {
-  post_uuid: Scalars["UUID"]["input"];
+export type MutationCreateTransactionArgs = {
+  amount: Scalars["PositiveFloat"]["input"];
 };
 
 export type MutationDeleteUserForAdminArgs = {
   user_uuid: Scalars["UUID"]["input"];
 };
 
+export type MutationRequestTransactionApprovalArgs = {
+  transaction_hash: Scalars["String"]["input"];
+  transaction_uuid: Scalars["UUID"]["input"];
+};
+
 export type MutationUpdateMyUserArgs = {
   bio?: InputMaybe<Scalars["String"]["input"]>;
   handle?: InputMaybe<Scalars["String"]["input"]>;
   screen_name?: InputMaybe<Scalars["String"]["input"]>;
-};
-
-export type MutationUpdatePostArgs = {
-  body: Scalars["String"]["input"];
-  post_uuid: Scalars["UUID"]["input"];
-  title: Scalars["String"]["input"];
 };
 
 export type MutationUpdateUserForAdminArgs = {
@@ -62,24 +56,14 @@ export type MutationUpdateUserForAdminArgs = {
   user_uuid: Scalars["UUID"]["input"];
 };
 
-export type Post = {
-  body: Scalars["String"]["output"];
-  created_at: Scalars["DateTime"]["output"];
-  is_public: Scalars["Boolean"]["output"];
-  post_uuid: Scalars["UUID"]["output"];
-  title: Scalars["String"]["output"];
-  updated_at: Scalars["DateTime"]["output"];
-  user: User;
-};
-
 export type Query = {
-  getAllPosts: Array<Post>;
+  getAllMyTransactions: Array<Transaction>;
   getAllUsers: Array<User>;
-  getPostByUUID: Post;
+  getTransactionByUUID: Transaction;
   getUserByUUID: User;
 };
 
-export type QueryGetAllPostsArgs = {
+export type QueryGetAllMyTransactionsArgs = {
   limit?: InputMaybe<Scalars["PositiveInt"]["input"]>;
   offset?: InputMaybe<Scalars["PositiveInt"]["input"]>;
 };
@@ -89,7 +73,7 @@ export type QueryGetAllUsersArgs = {
   offset?: InputMaybe<Scalars["PositiveInt"]["input"]>;
 };
 
-export type QueryGetPostByUuidArgs = {
+export type QueryGetTransactionByUuidArgs = {
   uuid: Scalars["UUID"]["input"];
 };
 
@@ -99,20 +83,27 @@ export type QueryGetUserByUuidArgs = {
 
 export type Role = "ADMIN" | "USER";
 
+export type Transaction = {
+  amount: Scalars["PositiveFloat"]["output"];
+  created_at: Scalars["DateTime"]["output"];
+  status: TransactionStatus;
+  tickets_count: Scalars["PositiveInt"]["output"];
+  transaction_hash: Scalars["String"]["output"];
+  transaction_uuid: Scalars["UUID"]["output"];
+  updated_at: Scalars["DateTime"]["output"];
+};
+
+export type TransactionStatus = "APPROVED" | "PENDING" | "REJECTED";
+
 export type User = {
   bio: Scalars["String"]["output"];
   created_at: Scalars["DateTime"]["output"];
   handle: Scalars["String"]["output"];
-  posts: Array<Post>;
   role: Role;
   screen_name: Scalars["String"]["output"];
+  tickets_count: Scalars["PositiveInt"]["output"];
   updated_at: Scalars["DateTime"]["output"];
   user_uuid: Scalars["UUID"]["output"];
-};
-
-export type UserPostsArgs = {
-  limit?: InputMaybe<Scalars["PositiveInt"]["input"]>;
-  offset?: InputMaybe<Scalars["PositiveInt"]["input"]>;
 };
 
 export type ResolverTypeWrapper<T> = Promise<T> | T;
@@ -186,11 +177,13 @@ export type ResolversTypes = {
   Boolean: ResolverTypeWrapper<Scalars["Boolean"]["output"]>;
   DateTime: ResolverTypeWrapper<Scalars["DateTime"]["output"]>;
   Mutation: ResolverTypeWrapper<{}>;
+  PositiveFloat: ResolverTypeWrapper<Scalars["PositiveFloat"]["output"]>;
   PositiveInt: ResolverTypeWrapper<Scalars["PositiveInt"]["output"]>;
-  Post: ResolverTypeWrapper<Post>;
   Query: ResolverTypeWrapper<{}>;
   Role: Role;
   String: ResolverTypeWrapper<Scalars["String"]["output"]>;
+  Transaction: ResolverTypeWrapper<Transaction>;
+  TransactionStatus: TransactionStatus;
   UUID: ResolverTypeWrapper<Scalars["UUID"]["output"]>;
   User: ResolverTypeWrapper<User>;
 };
@@ -200,10 +193,11 @@ export type ResolversParentTypes = {
   Boolean: Scalars["Boolean"]["output"];
   DateTime: Scalars["DateTime"]["output"];
   Mutation: {};
+  PositiveFloat: Scalars["PositiveFloat"]["output"];
   PositiveInt: Scalars["PositiveInt"]["output"];
-  Post: Post;
   Query: {};
   String: Scalars["String"]["output"];
+  Transaction: Transaction;
   UUID: Scalars["UUID"]["output"];
   User: User;
 };
@@ -224,35 +218,48 @@ export interface DateTimeScalarConfig extends GraphQLScalarTypeConfig<ResolversT
 }
 
 export type MutationResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes["Mutation"] = ResolversParentTypes["Mutation"]> = {
-  createPost?: Resolver<ResolversTypes["Post"], ParentType, ContextType, RequireFields<MutationCreatePostArgs, "body" | "title">>;
+  createTransaction?: Resolver<ResolversTypes["Transaction"], ParentType, ContextType, RequireFields<MutationCreateTransactionArgs, "amount">>;
   deleteMyUser?: Resolver<ResolversTypes["User"], ParentType, ContextType>;
-  deletePost?: Resolver<ResolversTypes["Post"], ParentType, ContextType, RequireFields<MutationDeletePostArgs, "post_uuid">>;
   deleteUserForAdmin?: Resolver<ResolversTypes["User"], ParentType, ContextType, RequireFields<MutationDeleteUserForAdminArgs, "user_uuid">>;
+  requestTransactionApproval?: Resolver<
+    ResolversTypes["Transaction"],
+    ParentType,
+    ContextType,
+    RequireFields<MutationRequestTransactionApprovalArgs, "transaction_hash" | "transaction_uuid">
+  >;
   updateMyUser?: Resolver<ResolversTypes["User"], ParentType, ContextType, Partial<MutationUpdateMyUserArgs>>;
-  updatePost?: Resolver<ResolversTypes["Post"], ParentType, ContextType, RequireFields<MutationUpdatePostArgs, "body" | "post_uuid" | "title">>;
   updateUserForAdmin?: Resolver<ResolversTypes["User"], ParentType, ContextType, RequireFields<MutationUpdateUserForAdminArgs, "user_uuid">>;
 };
+
+export interface PositiveFloatScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes["PositiveFloat"], any> {
+  name: "PositiveFloat";
+}
 
 export interface PositiveIntScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes["PositiveInt"], any> {
   name: "PositiveInt";
 }
 
-export type PostResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes["Post"] = ResolversParentTypes["Post"]> = {
-  body?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
-  created_at?: Resolver<ResolversTypes["DateTime"], ParentType, ContextType>;
-  is_public?: Resolver<ResolversTypes["Boolean"], ParentType, ContextType>;
-  post_uuid?: Resolver<ResolversTypes["UUID"], ParentType, ContextType>;
-  title?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
-  updated_at?: Resolver<ResolversTypes["DateTime"], ParentType, ContextType>;
-  user?: Resolver<ResolversTypes["User"], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+export type QueryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes["Query"] = ResolversParentTypes["Query"]> = {
+  getAllMyTransactions?: Resolver<
+    Array<ResolversTypes["Transaction"]>,
+    ParentType,
+    ContextType,
+    RequireFields<QueryGetAllMyTransactionsArgs, "limit" | "offset">
+  >;
+  getAllUsers?: Resolver<Array<ResolversTypes["User"]>, ParentType, ContextType, RequireFields<QueryGetAllUsersArgs, "limit" | "offset">>;
+  getTransactionByUUID?: Resolver<ResolversTypes["Transaction"], ParentType, ContextType, RequireFields<QueryGetTransactionByUuidArgs, "uuid">>;
+  getUserByUUID?: Resolver<ResolversTypes["User"], ParentType, ContextType, RequireFields<QueryGetUserByUuidArgs, "uuid">>;
 };
 
-export type QueryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes["Query"] = ResolversParentTypes["Query"]> = {
-  getAllPosts?: Resolver<Array<ResolversTypes["Post"]>, ParentType, ContextType, RequireFields<QueryGetAllPostsArgs, "limit" | "offset">>;
-  getAllUsers?: Resolver<Array<ResolversTypes["User"]>, ParentType, ContextType, RequireFields<QueryGetAllUsersArgs, "limit" | "offset">>;
-  getPostByUUID?: Resolver<ResolversTypes["Post"], ParentType, ContextType, RequireFields<QueryGetPostByUuidArgs, "uuid">>;
-  getUserByUUID?: Resolver<ResolversTypes["User"], ParentType, ContextType, RequireFields<QueryGetUserByUuidArgs, "uuid">>;
+export type TransactionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes["Transaction"] = ResolversParentTypes["Transaction"]> = {
+  amount?: Resolver<ResolversTypes["PositiveFloat"], ParentType, ContextType>;
+  created_at?: Resolver<ResolversTypes["DateTime"], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes["TransactionStatus"], ParentType, ContextType>;
+  tickets_count?: Resolver<ResolversTypes["PositiveInt"], ParentType, ContextType>;
+  transaction_hash?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
+  transaction_uuid?: Resolver<ResolversTypes["UUID"], ParentType, ContextType>;
+  updated_at?: Resolver<ResolversTypes["DateTime"], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export interface UuidScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes["UUID"], any> {
@@ -263,9 +270,9 @@ export type UserResolvers<ContextType = GraphQLContext, ParentType extends Resol
   bio?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
   created_at?: Resolver<ResolversTypes["DateTime"], ParentType, ContextType>;
   handle?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
-  posts?: Resolver<Array<ResolversTypes["Post"]>, ParentType, ContextType, RequireFields<UserPostsArgs, "limit" | "offset">>;
   role?: Resolver<ResolversTypes["Role"], ParentType, ContextType>;
   screen_name?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
+  tickets_count?: Resolver<ResolversTypes["PositiveInt"], ParentType, ContextType>;
   updated_at?: Resolver<ResolversTypes["DateTime"], ParentType, ContextType>;
   user_uuid?: Resolver<ResolversTypes["UUID"], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -274,9 +281,10 @@ export type UserResolvers<ContextType = GraphQLContext, ParentType extends Resol
 export type Resolvers<ContextType = GraphQLContext> = {
   DateTime?: GraphQLScalarType;
   Mutation?: MutationResolvers<ContextType>;
+  PositiveFloat?: GraphQLScalarType;
   PositiveInt?: GraphQLScalarType;
-  Post?: PostResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
+  Transaction?: TransactionResolvers<ContextType>;
   UUID?: GraphQLScalarType;
   User?: UserResolvers<ContextType>;
 };
