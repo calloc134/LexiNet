@@ -7,7 +7,7 @@ import { router } from "./route";
 import { AuthnProvider } from "./lib/provider/authn/AuthnProvider";
 import { UrqlProvider } from "./lib/provider/urql/UrqlProvider";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
-import { MetaMaskProvider } from "metamask-react";
+import { MetaMaskProvider } from "@metamask/sdk-react";
 import { is_dev } from "./env";
 import "src/index.css";
 
@@ -26,7 +26,15 @@ export const Main = () => {
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <AuthnProvider>
-      <MetaMaskProvider>
+      <MetaMaskProvider
+        sdkOptions={{
+          dappMetadata: {
+            name: "ほげほげまん",
+            url: "https://calloc.tech",
+          },
+          checkInstallationImmediately: false,
+        }}
+      >
         <UrqlProvider>
           <NextUIProvider>
             <Main />

@@ -119,6 +119,13 @@ export type TransactionDetailFragmentFragment = {
   updated_at: Date;
 } & { " $fragmentName"?: "TransactionDetailFragmentFragment" };
 
+export type RequestTransactionApprovalMutationMutationVariables = Exact<{
+  transaction_uuid: Scalars["UUID"]["input"];
+  transaction_hash: Scalars["String"]["input"];
+}>;
+
+export type RequestTransactionApprovalMutationMutation = { requestTransactionApproval: { transaction_uuid: string } };
+
 export type GetTransactionDetailQueryQueryVariables = Exact<{
   uuid: Scalars["UUID"]["input"];
 }>;
@@ -242,6 +249,50 @@ export const UserDetailFragmentFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<UserDetailFragmentFragment, unknown>;
+export const RequestTransactionApprovalMutationDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "requestTransactionApprovalMutation" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "transaction_uuid" } },
+          type: { kind: "NonNullType", type: { kind: "NamedType", name: { kind: "Name", value: "UUID" } } },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "transaction_hash" } },
+          type: { kind: "NonNullType", type: { kind: "NamedType", name: { kind: "Name", value: "String" } } },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "requestTransactionApproval" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "transaction_uuid" },
+                value: { kind: "Variable", name: { kind: "Name", value: "transaction_uuid" } },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "transaction_hash" },
+                value: { kind: "Variable", name: { kind: "Name", value: "transaction_hash" } },
+              },
+            ],
+            selectionSet: { kind: "SelectionSet", selections: [{ kind: "Field", name: { kind: "Name", value: "transaction_uuid" } }] },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<RequestTransactionApprovalMutationMutation, RequestTransactionApprovalMutationMutationVariables>;
 export const GetTransactionDetailQueryDocument = {
   kind: "Document",
   definitions: [

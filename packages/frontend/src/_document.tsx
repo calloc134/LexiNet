@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Outlet, Link } from "@tanstack/react-router";
 import { Navbar, NavbarBrand, NavbarContent, NavbarItem, Button, Avatar, Tooltip, Spacer } from "@nextui-org/react";
 import { Login, Sun } from "tabler-icons-react";
+import { MetaMaskButton } from "@metamask/sdk-react";
 import { useAuthn } from "./lib/provider/authn/useAuthn";
 
 // 外枠のコンポーネント
@@ -38,6 +39,7 @@ export const Document = () => {
           </NavbarContent>
           <NavbarContent justify="end">
             <NavbarItem className="sm:flex gap-4">
+              <MetaMaskButton></MetaMaskButton>
               <Tooltip content="スタイル切替" color="secondary">
                 <Button color="secondary" variant="shadow" onClick={toggleDarkMode} className="hover:-translate-y-1 ">
                   <Sun size={20} />
