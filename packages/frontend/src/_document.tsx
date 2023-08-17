@@ -33,7 +33,7 @@ export const Document = () => {
               <Link to="/auth/users">ユーザ一覧</Link>
             </NavbarItem>
             <NavbarItem isActive>
-              <Link to="/auth/posts">投稿一覧</Link>
+              <Link to="/auth/transactions">トランザクション一覧</Link>
             </NavbarItem>
           </NavbarContent>
           <NavbarContent justify="end">
@@ -56,7 +56,7 @@ export const Document = () => {
               ) : (
                 <Tooltip content="ログイン/登録" color="secondary">
                   <Button color="primary" variant="shadow" className="hover:-translate-y-1">
-                    <Link to="/auth/posts">
+                    <Link to="/auth/transactions">
                       <Login size={20} />
                     </Link>
                   </Button>
