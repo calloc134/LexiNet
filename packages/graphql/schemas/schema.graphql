@@ -38,6 +38,8 @@ type Query {
   getAllMyTransactions(offset: PositiveInt = 0, limit: PositiveInt = 10): [Transaction!]! @auth(role: USER)
   # トランザクションを取得するクエリ
   getTransactionByUUID(uuid: UUID!): Transaction! @auth(role: USER)
+  # ChatGPTとの会話を行うクエリ
+  chatGPT(text: String!): ChatGPTInterface! @auth(role: USER)
 }
 
 # ミューテーションのスキーマ定義
@@ -86,4 +88,8 @@ type Transaction {
   created_at: DateTime!
   updated_at: DateTime!
   # user: User!
+}
+
+type ChatGPTInterface {
+  text: String!
 }

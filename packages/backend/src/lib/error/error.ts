@@ -34,6 +34,9 @@ const error_code = {
   // トランザクションがすでに登録されているエラー
   transaction_already_exists: "TRANSACTION_ALREADY_EXISTS",
 
+  // チケット枚数が足りないエラー
+  insufficient_ticket: "INSUFFICIENT_TICKET",
+
   // その他のエラー
   unknown_error: "UNKNOWN_ERROR",
 };
@@ -57,6 +60,7 @@ const error_message: { [key in ErrorCode]: string } = {
   insufficient_amount: "💰 Insufficient amount",
   invalid_receiver: "📭 Invalid receiver",
   transaction_already_exists: "🔄 Transaction already exists",
+  insufficient_ticket: "🎫 Insufficient ticket",
 };
 
 // カスタムのエラークラス

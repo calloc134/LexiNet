@@ -20,6 +20,10 @@ export type Scalars = {
   UUID: { input: string; output: string };
 };
 
+export type ChatGptInterface = {
+  text: Scalars["String"]["output"];
+};
+
 export type Mutation = {
   createTransaction: Transaction;
   deleteMyUser: User;
@@ -56,10 +60,15 @@ export type MutationUpdateUserForAdminArgs = {
 };
 
 export type Query = {
+  chatGPT: ChatGptInterface;
   getAllMyTransactions: Array<Transaction>;
   getAllUsers: Array<User>;
   getTransactionByUUID: Transaction;
   getUserByUUID: User;
+};
+
+export type QueryChatGptArgs = {
+  text: Scalars["String"]["input"];
 };
 
 export type QueryGetAllMyTransactionsArgs = {
