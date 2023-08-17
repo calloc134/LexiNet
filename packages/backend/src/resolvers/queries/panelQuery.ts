@@ -73,6 +73,24 @@ const PanelQueryResolver: QueryResolvers<GraphQLContext> = {
     return await safeTransaction(currentUser.user_uuid, prisma, transaction_uuid);
   },
 
+  // getMyUserクエリのリゾルバー
+  getMyUser: async (_parent, _args, context) => {
+    const safeUser = withErrorHandling(async (user_uuid: string, prisma: PrismaClient) => {
+      // ログインユーザーを取得
+      const result = await prisma.user.findUniqueOrThrow({
+        where: {
+          user_uuid: user_uuid,
+        },
+      });
+      return result;
+    });
+
+    // コンテキストからPrismaクライアントとログインユーザーを取得
+    const { prisma, currentUser } = context;
+
+    return await safeUser(currentUser.user_uuid, prisma);
+  },
+
   // getAllTransactionsクエリのリゾルバー
   getAllMyTransactions: async (_parent, args, context) => {
     const safeTransactions = withErrorHandling(async (user_uuid: string, prisma: PrismaClient, { offset, limit }: { offset: number; limit: number }) => {

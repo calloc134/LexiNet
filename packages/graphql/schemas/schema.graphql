@@ -34,6 +34,8 @@ type Query {
   getAllUsers(offset: PositiveInt = 0, limit: PositiveInt = 10): [User!]! @auth(role: USER)
   # ユーザを取得するクエリ
   getUserByUUID(uuid: UUID!): User! @auth(role: USER)
+  # 自分のユーザを取得するクエリ
+  getMyUser: User! @auth(role: USER)
   # 自分に紐づくトランザクション一覧を取得するクエリ
   getAllMyTransactions(offset: PositiveInt = 0, limit: PositiveInt = 10): [Transaction!]! @auth(role: USER)
   # トランザクションを取得するクエリ
@@ -59,6 +61,9 @@ type Mutation {
 
   # PENDINGなトランザクションに対して送金の確認を要求するミューテーション
   requestTransactionApproval(transaction_uuid: UUID!, transaction_hash: String!): Transaction! @auth(role: USER)
+
+  # ChatGPTとの会話を行うミューテーション
+  chatGPT(text: String!): ChatGPTInterface! @auth(role: USER)
 }
 
 # ユーザ型の定義
@@ -86,4 +91,8 @@ type Transaction {
   created_at: DateTime!
   updated_at: DateTime!
   # user: User!
+}
+
+type ChatGPTInterface {
+  text: String!
 }

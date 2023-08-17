@@ -4,6 +4,28 @@ import { MutationResolvers } from "src/lib/generated/resolver-types";
 import { GraphQLContext } from "src/context";
 import { withErrorHandling } from "src/lib/error/handling";
 import { getTransactionDetails } from "src/lib/transaction_checker/transaction_checker";
+import axios from "axios";
+
+// ChatGPTエンドポイントの戻り値の型
+type ChatCompletion = {
+  id: string;
+  object: string;
+  created: number;
+  model: string;
+  choices: Array<{
+    index: number;
+    message: {
+      role: string;
+      content: string;
+    };
+    finish_reason: string;
+  }>;
+  usage: {
+    prompt_tokens: number;
+    completion_tokens: number;
+    total_tokens: number;
+  };
+};
 
 // prismaのupdateは、undefinedな値を渡すと、そのフィールドを更新しないことに留意する
 
@@ -226,6 +248,55 @@ const PanelMutationResolver: MutationResolvers<GraphQLContext> = {
     const { prisma, currentUser } = context;
 
     return await safeTransaction(currentUser.user_uuid, prisma, { transaction_uuid, transaction_hash });
+  },
+
+  // ChatGPTミューテーションのリゾルバー
+  chatGPT: async (_parent, args, context) => {
+    const safeChatGPT = withErrorHandling(async (user_uuid: string, prisma: PrismaClient, message: string) => {
+      // ユーザの存在を確認しチケット枚数を確認
+      const user = await prisma.user.findUniqueOrThrow({
+        where: {
+          user_uuid: user_uuid,
+        },
+        select: {
+          tickets_count: true,
+        },
+      });
+
+      // ChatGPTエンドポイントにリクエストを送信
+      const response = await axios.post<ChatCompletion>("https://gptwrapper-f6bkalktuq-uc.a.run.app?text=" + encodeURIComponent(message));
+
+      const { choices, usage } = response.data;
+
+      // チケット枚数を確認し、足りない場合はエラーを返す
+      if (user.tickets_count < usage.total_tokens) {
+        throw new GraphQLErrorWithCode("insufficient_ticket");
+      }
+
+      // チケット枚数を減らす
+      await prisma.user.update({
+        where: {
+          user_uuid: user_uuid,
+        },
+        data: {
+          tickets_count: {
+            decrement: usage.total_tokens,
+          },
+        },
+      });
+
+      return {
+        text: choices[0].message.content,
+      };
+    });
+
+    // 引数からメッセージを取得
+    const { text } = args;
+
+    // コンテキストからPrismaクライアントを取得
+    const { prisma, currentUser } = context;
+
+    return await safeChatGPT(currentUser.user_uuid, prisma, text);
   },
 };
 

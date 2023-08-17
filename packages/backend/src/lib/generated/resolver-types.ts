@@ -21,13 +21,22 @@ export type Scalars = {
   UUID: { input: string; output: string };
 };
 
+export type ChatGptInterface = {
+  text: Scalars["String"]["output"];
+};
+
 export type Mutation = {
+  chatGPT: ChatGptInterface;
   createTransaction: Transaction;
   deleteMyUser: User;
   deleteUserForAdmin: User;
   requestTransactionApproval: Transaction;
   updateMyUser: User;
   updateUserForAdmin: User;
+};
+
+export type MutationChatGptArgs = {
+  text: Scalars["String"]["input"];
 };
 
 export type MutationCreateTransactionArgs = {
@@ -59,6 +68,7 @@ export type MutationUpdateUserForAdminArgs = {
 export type Query = {
   getAllMyTransactions: Array<Transaction>;
   getAllUsers: Array<User>;
+  getMyUser: User;
   getTransactionByUUID: Transaction;
   getUserByUUID: User;
 };
@@ -175,6 +185,7 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
   Boolean: ResolverTypeWrapper<Scalars["Boolean"]["output"]>;
+  ChatGPTInterface: ResolverTypeWrapper<ChatGptInterface>;
   DateTime: ResolverTypeWrapper<Scalars["DateTime"]["output"]>;
   Mutation: ResolverTypeWrapper<{}>;
   PositiveFloat: ResolverTypeWrapper<Scalars["PositiveFloat"]["output"]>;
@@ -191,6 +202,7 @@ export type ResolversTypes = {
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
   Boolean: Scalars["Boolean"]["output"];
+  ChatGPTInterface: ChatGptInterface;
   DateTime: Scalars["DateTime"]["output"];
   Mutation: {};
   PositiveFloat: Scalars["PositiveFloat"]["output"];
@@ -213,11 +225,20 @@ export type AuthDirectiveResolver<Result, Parent, ContextType = GraphQLContext, 
   Args
 >;
 
+export type ChatGptInterfaceResolvers<
+  ContextType = GraphQLContext,
+  ParentType extends ResolversParentTypes["ChatGPTInterface"] = ResolversParentTypes["ChatGPTInterface"]
+> = {
+  text?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export interface DateTimeScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes["DateTime"], any> {
   name: "DateTime";
 }
 
 export type MutationResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes["Mutation"] = ResolversParentTypes["Mutation"]> = {
+  chatGPT?: Resolver<ResolversTypes["ChatGPTInterface"], ParentType, ContextType, RequireFields<MutationChatGptArgs, "text">>;
   createTransaction?: Resolver<ResolversTypes["Transaction"], ParentType, ContextType, RequireFields<MutationCreateTransactionArgs, "amount">>;
   deleteMyUser?: Resolver<ResolversTypes["User"], ParentType, ContextType>;
   deleteUserForAdmin?: Resolver<ResolversTypes["User"], ParentType, ContextType, RequireFields<MutationDeleteUserForAdminArgs, "user_uuid">>;
@@ -247,6 +268,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
     RequireFields<QueryGetAllMyTransactionsArgs, "limit" | "offset">
   >;
   getAllUsers?: Resolver<Array<ResolversTypes["User"]>, ParentType, ContextType, RequireFields<QueryGetAllUsersArgs, "limit" | "offset">>;
+  getMyUser?: Resolver<ResolversTypes["User"], ParentType, ContextType>;
   getTransactionByUUID?: Resolver<ResolversTypes["Transaction"], ParentType, ContextType, RequireFields<QueryGetTransactionByUuidArgs, "uuid">>;
   getUserByUUID?: Resolver<ResolversTypes["User"], ParentType, ContextType, RequireFields<QueryGetUserByUuidArgs, "uuid">>;
 };
@@ -279,6 +301,7 @@ export type UserResolvers<ContextType = GraphQLContext, ParentType extends Resol
 };
 
 export type Resolvers<ContextType = GraphQLContext> = {
+  ChatGPTInterface?: ChatGptInterfaceResolvers<ContextType>;
   DateTime?: GraphQLScalarType;
   Mutation?: MutationResolvers<ContextType>;
   PositiveFloat?: GraphQLScalarType;
