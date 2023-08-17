@@ -25,12 +25,17 @@ export type ChatGptInterface = {
 };
 
 export type Mutation = {
+  chatGPT: ChatGptInterface;
   createTransaction: Transaction;
   deleteMyUser: User;
   deleteUserForAdmin: User;
   requestTransactionApproval: Transaction;
   updateMyUser: User;
   updateUserForAdmin: User;
+};
+
+export type MutationChatGptArgs = {
+  text: Scalars["String"]["input"];
 };
 
 export type MutationCreateTransactionArgs = {
@@ -60,15 +65,11 @@ export type MutationUpdateUserForAdminArgs = {
 };
 
 export type Query = {
-  chatGPT: ChatGptInterface;
   getAllMyTransactions: Array<Transaction>;
   getAllUsers: Array<User>;
+  getMyUser: User;
   getTransactionByUUID: Transaction;
   getUserByUUID: User;
-};
-
-export type QueryChatGptArgs = {
-  text: Scalars["String"]["input"];
 };
 
 export type QueryGetAllMyTransactionsArgs = {
@@ -113,6 +114,16 @@ export type User = {
   updated_at: Scalars["DateTime"]["output"];
   user_uuid: Scalars["UUID"]["output"];
 };
+
+export type ChatGptMutationMutationVariables = Exact<{
+  text: Scalars["String"]["input"];
+}>;
+
+export type ChatGptMutationMutation = { chatGPT: { text: string } };
+
+export type GetMyUserQueryVariables = Exact<{ [key: string]: never }>;
+
+export type GetMyUserQuery = { getMyUser: { user_uuid: string; tickets_count: number } };
 
 export type TransactionFragmentFragment = { transaction_uuid: string; tickets_count: number; amount: number; status: TransactionStatus } & {
   " $fragmentName"?: "TransactionFragmentFragment";
@@ -258,6 +269,60 @@ export const UserDetailFragmentFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<UserDetailFragmentFragment, unknown>;
+export const ChatGptMutationDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "chatGPTMutation" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "text" } },
+          type: { kind: "NonNullType", type: { kind: "NamedType", name: { kind: "Name", value: "String" } } },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "chatGPT" },
+            arguments: [{ kind: "Argument", name: { kind: "Name", value: "text" }, value: { kind: "Variable", name: { kind: "Name", value: "text" } } }],
+            selectionSet: { kind: "SelectionSet", selections: [{ kind: "Field", name: { kind: "Name", value: "text" } }] },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ChatGptMutationMutation, ChatGptMutationMutationVariables>;
+export const GetMyUserDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "getMyUser" },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "getMyUser" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "user_uuid" } },
+                { kind: "Field", name: { kind: "Name", value: "tickets_count" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetMyUserQuery, GetMyUserQueryVariables>;
 export const RequestTransactionApprovalMutationDocument = {
   kind: "Document",
   definitions: [

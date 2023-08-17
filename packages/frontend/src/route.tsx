@@ -7,6 +7,7 @@ import { UsersPage } from "./features/users/pages/UsersPage";
 import { UserDetailPage } from "./features/users/pages/UserDetailPage";
 import { TransactionsPage } from "./features/transactions/pages/TransactionsPage";
 import { TransactionDetailPage } from "./features/transactions/pages/TransactionDetailPage";
+import { ChatPage } from "./features/chat/pages/Index";
 import { CallBackPage } from "./callback";
 
 // 以下、ルーティングの設定
@@ -50,6 +51,14 @@ const protectedRoute = new Route({
   // 保護された外枠コンポーネントを指定
   // Outletが指定されているので、このコンポーネントの中に子ルートが表示される
   component: () => <ProtectedRouter />,
+});
+
+// auth/chatルートの設定
+const authenticatedChatRoute = new Route({
+  // 親ルートを指定
+  getParentRoute: () => protectedRoute,
+  path: "chat",
+  component: () => <ChatPage />,
 });
 
 // auth/usersルートの設定
@@ -106,6 +115,7 @@ const router = new Router({
     protectedRoute.addChildren([
       authenticatedUserRoute.addChildren([usersRoute, userDetailRoute]),
       authenticatedPostRoute.addChildren([transactionsRoute, transactionDetailRoute]),
+      authenticatedChatRoute,
     ]),
   ]),
 });

@@ -3,28 +3,6 @@ import { GraphQLErrorWithCode } from "src/lib/error/error";
 import { QueryResolvers } from "src/lib/generated/resolver-types";
 import { GraphQLContext } from "src/context";
 import { withErrorHandling } from "src/lib/error/handling";
-import axios from "axios";
-
-// ChatGPTエンドポイントの戻り値の型
-type ChatCompletion = {
-  id: string;
-  object: string;
-  created: number;
-  model: string;
-  choices: Array<{
-    index: number;
-    message: {
-      role: string;
-      content: string;
-    };
-    finish_reason: string;
-  }>;
-  usage: {
-    prompt_tokens: number;
-    completion_tokens: number;
-    total_tokens: number;
-  };
-};
 
 const PanelQueryResolver: QueryResolvers<GraphQLContext> = {
   // getUserByUUIDクエリのリゾルバー
@@ -95,6 +73,24 @@ const PanelQueryResolver: QueryResolvers<GraphQLContext> = {
     return await safeTransaction(currentUser.user_uuid, prisma, transaction_uuid);
   },
 
+  // getMyUserクエリのリゾルバー
+  getMyUser: async (_parent, _args, context) => {
+    const safeUser = withErrorHandling(async (user_uuid: string, prisma: PrismaClient) => {
+      // ログインユーザーを取得
+      const result = await prisma.user.findUniqueOrThrow({
+        where: {
+          user_uuid: user_uuid,
+        },
+      });
+      return result;
+    });
+
+    // コンテキストからPrismaクライアントとログインユーザーを取得
+    const { prisma, currentUser } = context;
+
+    return await safeUser(currentUser.user_uuid, prisma);
+  },
+
   // getAllTransactionsクエリのリゾルバー
   getAllMyTransactions: async (_parent, args, context) => {
     const safeTransactions = withErrorHandling(async (user_uuid: string, prisma: PrismaClient, { offset, limit }: { offset: number; limit: number }) => {
@@ -121,55 +117,6 @@ const PanelQueryResolver: QueryResolvers<GraphQLContext> = {
     const { prisma, currentUser } = context;
 
     return await safeTransactions(currentUser.user_uuid, prisma, { limit, offset });
-  },
-
-  // ChatGPTクエリのリゾルバー
-  chatGPT: async (_parent, args, context) => {
-    const safeChatGPT = withErrorHandling(async (user_uuid: string, prisma: PrismaClient, message: string) => {
-      // ユーザの存在を確認しチケット枚数を確認
-      const user = await prisma.user.findUniqueOrThrow({
-        where: {
-          user_uuid: user_uuid,
-        },
-        select: {
-          tickets_count: true,
-        },
-      });
-
-      // ChatGPTエンドポイントにリクエストを送信
-      const response = await axios.post<ChatCompletion>("https://gptwrapper-f6bkalktuq-uc.a.run.app?text=" + encodeURIComponent(message));
-
-      const { choices, usage } = response.data;
-
-      // チケット枚数を確認し、足りない場合はエラーを返す
-      if (user.tickets_count < usage.total_tokens) {
-        throw new GraphQLErrorWithCode("insufficient_ticket");
-      }
-
-      // チケット枚数を減らす
-      await prisma.user.update({
-        where: {
-          user_uuid: user_uuid,
-        },
-        data: {
-          tickets_count: {
-            decrement: usage.total_tokens,
-          },
-        },
-      });
-
-      return {
-        text: choices[0].message.content,
-      };
-    });
-
-    // 引数からメッセージを取得
-    const { text } = args;
-
-    // コンテキストからPrismaクライアントを取得
-    const { prisma, currentUser } = context;
-
-    return await safeChatGPT(currentUser.user_uuid, prisma, text);
   },
 };
 
