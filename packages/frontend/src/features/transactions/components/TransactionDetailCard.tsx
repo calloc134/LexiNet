@@ -78,20 +78,24 @@ const TransactionDetailCard = ({ transaction: transaction_frag }: { transaction:
       });
 
       const timerId = setTimeout(() => {
-        executeMutation({
-          transaction_uuid: transaction.transaction_uuid,
-          transaction_hash: data?.hash ?? "",
-        });
+        // 送金が確認されていない場合のみ実行
+        if (!result.data || result.error) {
+          executeMutation({
+            transaction_uuid: transaction.transaction_uuid,
+            transaction_hash: data?.hash ?? "",
+          });
 
-        // エラーがなかったら、トランザクション一覧ページに遷移する
-        if (result.data && !result.error) {
-          clearTimeout(timerId);
-          toast("送金が確認されました。", {
-            icon: "👏",
-          });
-          navigate({
-            to: "/auth/transactions",
-          });
+          // エラーがなかったら、トランザクション一覧ページに遷移する
+          if (result.data && !result.error) {
+            clearTimeout(timerId);
+            // トースト通知...
+            toast("送金が確認されました。", {
+              icon: "👏",
+            });
+            navigate({
+              to: "/auth/transactions",
+            });
+          }
         }
       }, 10000);
       return () => clearTimeout(timerId);

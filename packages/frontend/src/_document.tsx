@@ -25,8 +25,8 @@ export const Document = () => {
         <Navbar className="flex-shrink-0 bg-primary/30 backdrop-blur-sm shadow-xl rounded-b-lg" shouldHideOnScroll>
           {/* ナビゲーションバーの高さを固定 */}
           <NavbarBrand>
-            <Tooltip content="callstack" color="secondary">
-              <Link to="/">callstack</Link>
+            <Tooltip content="LexiChain" color="secondary">
+              <Link to="/">LexiChain</Link>
             </Tooltip>
           </NavbarBrand>
           <NavbarContent className="hidden sm:flex gap-4" justify="start">
@@ -60,7 +60,7 @@ export const Document = () => {
                 />
               ) : (
                 <Tooltip content="ログイン/登録" color="secondary">
-                  <Button color="primary" variant="shadow" className="hover:-translate-y-1">
+                  <Button variant="shadow" className="hover:-translate-y-1">
                     <Link to="/auth/transactions">
                       <Login size={20} />
                     </Link>
