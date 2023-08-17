@@ -133,6 +133,12 @@ export type GetAllMyTransactionsQueryQuery = {
   getAllMyTransactions: Array<{ " $fragmentRefs"?: { TransactionFragmentFragment: TransactionFragmentFragment } }>;
 };
 
+export type CreateTransactionMutationMutationVariables = Exact<{
+  amount: Scalars["PositiveFloat"]["input"];
+}>;
+
+export type CreateTransactionMutationMutation = { createTransaction: { " $fragmentRefs"?: { TransactionFragmentFragment: TransactionFragmentFragment } } };
+
 export type UserFragmentFragment = { user_uuid: string; handle: string; screen_name: string } & { " $fragmentName"?: "UserFragmentFragment" };
 
 export type UserDetailFragmentFragment = {
@@ -316,6 +322,48 @@ export const GetAllMyTransactionsQueryDocument = {
     },
   ],
 } as unknown as DocumentNode<GetAllMyTransactionsQueryQuery, GetAllMyTransactionsQueryQueryVariables>;
+export const CreateTransactionMutationDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "CreateTransactionMutation" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "amount" } },
+          type: { kind: "NonNullType", type: { kind: "NamedType", name: { kind: "Name", value: "PositiveFloat" } } },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "createTransaction" },
+            arguments: [{ kind: "Argument", name: { kind: "Name", value: "amount" }, value: { kind: "Variable", name: { kind: "Name", value: "amount" } } }],
+            selectionSet: { kind: "SelectionSet", selections: [{ kind: "FragmentSpread", name: { kind: "Name", value: "TransactionFragment" } }] },
+          },
+        ],
+      },
+    },
+    {
+      kind: "FragmentDefinition",
+      name: { kind: "Name", value: "TransactionFragment" },
+      typeCondition: { kind: "NamedType", name: { kind: "Name", value: "Transaction" } },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          { kind: "Field", name: { kind: "Name", value: "transaction_uuid" } },
+          { kind: "Field", name: { kind: "Name", value: "tickets_count" } },
+          { kind: "Field", name: { kind: "Name", value: "amount" } },
+          { kind: "Field", name: { kind: "Name", value: "status" } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateTransactionMutationMutation, CreateTransactionMutationMutationVariables>;
 export const UserDetailFragmentDocument = {
   kind: "Document",
   definitions: [

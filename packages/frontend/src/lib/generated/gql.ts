@@ -21,6 +21,8 @@ const documents = {
     types.GetTransactionDetailQueryDocument,
   "\n  query GetAllMyTransactionsQuery {\n    getAllMyTransactions(limit: 10) {\n      ...TransactionFragment\n    }\n  }\n":
     types.GetAllMyTransactionsQueryDocument,
+  "\n  mutation CreateTransactionMutation($amount: PositiveFloat!) {\n    createTransaction(amount: $amount) {\n      ...TransactionFragment\n    }\n  }\n":
+    types.CreateTransactionMutationDocument,
   "\n  fragment UserFragment on User {\n    user_uuid\n    handle\n    screen_name\n  }\n": types.UserFragmentFragmentDoc,
   "\n  fragment UserDetailFragment on User {\n    user_uuid\n    handle\n    screen_name\n    bio\n    created_at\n    updated_at\n    role\n  }\n":
     types.UserDetailFragmentFragmentDoc,
@@ -66,6 +68,12 @@ export function graphql(
 export function graphql(
   source: "\n  query GetAllMyTransactionsQuery {\n    getAllMyTransactions(limit: 10) {\n      ...TransactionFragment\n    }\n  }\n"
 ): (typeof documents)["\n  query GetAllMyTransactionsQuery {\n    getAllMyTransactions(limit: 10) {\n      ...TransactionFragment\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: "\n  mutation CreateTransactionMutation($amount: PositiveFloat!) {\n    createTransaction(amount: $amount) {\n      ...TransactionFragment\n    }\n  }\n"
+): (typeof documents)["\n  mutation CreateTransactionMutation($amount: PositiveFloat!) {\n    createTransaction(amount: $amount) {\n      ...TransactionFragment\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
