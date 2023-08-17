@@ -28,9 +28,11 @@ export const Document = () => {
         <Navbar height="100px" maxWidth="full" className="flex-shrink-0 bg-primary/30 backdrop-blur-sm shadow-xl rounded-b-lg px-5" shouldHideOnScroll>
           {/* ナビゲーションバーの高さを固定 */}
           <NavbarBrand>
-            <Link to="/">
-              <img src={LogoImg} style={{ height: "35%", width: "35%" }} />
-            </Link>
+            <Box sx={{ p: 1.5, pr: 2, pb: 1.8, borderRadius: 3 }} className={darkMode ? "bg-background" : ""}>
+              <Link to="/">
+                <img src={LogoImg} style={{ height: "45px", width: "270px" }} />
+              </Link>
+            </Box>
           </NavbarBrand>
           <NavbarContent className="hidden sm:flex gap-12" justify="start">
             <NavbarItem>
@@ -52,11 +54,9 @@ export const Document = () => {
           <NavbarContent justify="end">
             <NavbarItem className="sm:flex gap-4">
               <Tooltip content="Connect wallet" color="secondary" style={{ backgroundColor: "white" }}>
-                <Button color="secondary" variant="shadow" className="hover:-translate-y-1 " style={{ backgroundColor: "#f66b0a" }}>
-                  <Box sx={{ boxShadow: "none" }}>
-                    <MetaMaskButton />
-                  </Box>
-                </Button>
+                <Box className="hover:-translate-y-1 " sx={{ bgcolor: "#f66b0a", borderRadius: "10px" }}>
+                  <MetaMaskButton />
+                </Box>
               </Tooltip>
               <Tooltip content="スタイル切替" color="secondary">
                 <Button color="secondary" variant="shadow" onClick={toggleDarkMode} className="hover:-translate-y-1 ">
@@ -79,7 +79,7 @@ export const Document = () => {
         </Navbar>
         <div className="flex-grow overflow-auto">
           {/* ここで内側のコンポーネントを伸縮させる */}
-          <Spacer y={40} />
+          <Spacer y={12} />
           <Outlet />
         </div>
       </div>
