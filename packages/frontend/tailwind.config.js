@@ -24,9 +24,9 @@ module.exports = {
             foreground: "#4e4e4e", // 読みやすさを保つためのフォント色
             primary: "#54BAB9", // 主要な色で、強調したい場所に使用
             secondary: "#fff8e5", // 補助的な色で、主要色とのバランスを取る
-            success: "#54BAB9", // 成功を示す色
-            warning: "#54BAB9", // 警告に使用
-            danger: "#54BAB9", // 危険を示す色で、緊急性を強調
+            success: "#28a745", // 成功を示す色
+            warning: "#ffc107", // 警告に使用
+            danger: "#dc3545", // 危険を示す色で、緊急性を強調
             divider: "#e0e0e0", // 区切り線に使用、目立たず機能する色
             overlay: "#FBF8F1", // モーダルなどに使用、背景と調和する色
             focus: "#54BAB9", // フォーカス時に使用、強調したい部分に目を引く色
@@ -43,9 +43,9 @@ module.exports = {
             foreground: "#FFFFFF", // 白い文字色
             primary: "#54BAB9", // 主要な色で、強調したい場所に使用
             secondary: "#3e3e3e", // 補助的な色で、主要色とのバランスを取る（暗い色）
-            success: "#54BAB9", // 成功を示す色
-            warning: "#54BAB9", // 警告に使用
-            danger: "#54BAB9", // 危険を示す色で、緊急性を強調
+            success: "#28a745", // 成功を示す色
+            warning: "#ffc107", // 警告に使用
+            danger: "#dc3545", // 危険を示す色で、緊急性を強調
             divider: "#3e3e3e", // 区切り線に使用、目立たず機能する暗い色
             overlay: "#2e2e2e", // モーダルなどに使用、背景と調和するより暗い色
             focus: "#54BAB9", // フォーカス時に使用、強調したい部分に目を引く色
