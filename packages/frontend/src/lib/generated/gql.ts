@@ -17,6 +17,8 @@ const documents = {
     types.TransactionFragmentFragmentDoc,
   "\n  fragment TransactionDetailFragment on Transaction {\n    transaction_uuid\n    transaction_hash\n    tickets_count\n    amount\n    status\n    created_at\n    updated_at\n  }\n":
     types.TransactionDetailFragmentFragmentDoc,
+  "\n  mutation requestTransactionApprovalMutation(\n    $transaction_uuid: UUID!,\n    $transaction_hash: String!\n  ) {\n    requestTransactionApproval(\n      transaction_uuid: $transaction_uuid,\n      transaction_hash: $transaction_hash\n    ) {\n      transaction_uuid\n    }\n  }\n":
+    types.RequestTransactionApprovalMutationDocument,
   "\n  query GetTransactionDetailQuery($uuid: UUID!) {\n    getTransactionByUUID(uuid: $uuid) {\n      ...TransactionDetailFragment\n    }\n  }\n":
     types.GetTransactionDetailQueryDocument,
   "\n  query GetAllMyTransactionsQuery {\n    getAllMyTransactions(limit: 10) {\n      ...TransactionFragment\n    }\n  }\n":
@@ -56,6 +58,12 @@ export function graphql(
 export function graphql(
   source: "\n  fragment TransactionDetailFragment on Transaction {\n    transaction_uuid\n    transaction_hash\n    tickets_count\n    amount\n    status\n    created_at\n    updated_at\n  }\n"
 ): (typeof documents)["\n  fragment TransactionDetailFragment on Transaction {\n    transaction_uuid\n    transaction_hash\n    tickets_count\n    amount\n    status\n    created_at\n    updated_at\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: "\n  mutation requestTransactionApprovalMutation(\n    $transaction_uuid: UUID!,\n    $transaction_hash: String!\n  ) {\n    requestTransactionApproval(\n      transaction_uuid: $transaction_uuid,\n      transaction_hash: $transaction_hash\n    ) {\n      transaction_uuid\n    }\n  }\n"
+): (typeof documents)["\n  mutation requestTransactionApprovalMutation(\n    $transaction_uuid: UUID!,\n    $transaction_hash: String!\n  ) {\n    requestTransactionApproval(\n      transaction_uuid: $transaction_uuid,\n      transaction_hash: $transaction_hash\n    ) {\n      transaction_uuid\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
