@@ -1,3 +1,12 @@
+@import url("https://fonts.googleapis.com/css2?family=Quicksand&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/**
+  * GoogleFonts
+  * https://fonts.google.com/specimen/Quicksand?query=Quick
+  */
+.fontfamily {
+  font-family: "Quicksand", sans-serif;
+}
