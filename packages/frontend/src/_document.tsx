@@ -36,6 +36,9 @@ export const Document = () => {
             <NavbarItem isActive>
               <Link to="/auth/transactions">トランザクション一覧</Link>
             </NavbarItem>
+            <NavbarItem isActive>
+              <Link to="/auth/chat">チャット画面</Link>
+            </NavbarItem>
           </NavbarContent>
           <NavbarContent justify="end">
             <NavbarItem className="sm:flex gap-4">
