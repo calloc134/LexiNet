@@ -11,7 +11,7 @@ export const Index = () => {
         <p className="text-xl">誰かに頼らない思想を君に。</p>
         <Spacer y={4} />
         <Button color="primary" variant="shadow" className="rounded-full hover:-translate-y-1">
-          <Link to="/auth/transactions">作成したトランザクション一覧の表示</Link>
+          <Link to="/auth/chat">チャットにアクセス</Link>
         </Button>
 
         <Spacer y={4} />
