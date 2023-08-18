@@ -15,3 +15,8 @@
 ## 概要
 
 Nagoya Web3 Hackathon 2023 にて開発した作品です。
+
+## 開発者
+
+- [calloc134](https://github.com/calloc134)
+- [Yuma-Satake](https://github.com/Yuma-Satake)
