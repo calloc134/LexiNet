@@ -134,8 +134,8 @@ const PanelMutationResolver: MutationResolvers<GraphQLContext> = {
   // createTransactionのリゾルバー
   createTransaction: async (_parent, args, context) => {
     const safeTransaction = withErrorHandling(async (current_user_uuid: string, prisma: PrismaClient, { amount: amount }: { amount: number }) => {
-      // amountが0.0001につきチケット一枚とする計算
-      const tickets_count = Math.floor(amount * 10000);
+      // amountが0.000001につき1チケット
+      const tickets_count = Math.floor(amount * 1000000);
 
       // UUIDからユーザーを取得
       const result = await prisma.transaction.create({
