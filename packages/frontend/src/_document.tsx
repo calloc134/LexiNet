@@ -5,7 +5,7 @@ import { Login, Sun } from "tabler-icons-react";
 import { MetaMaskButton } from "@metamask/sdk-react";
 import { useAuthn } from "./lib/provider/authn/useAuthn";
 import { Box } from "@mui/material";
-import LogoImg from "./assets/logo.png";
+import LogoImg from "./assets/logo.svg";
 import { SideText } from "./components/SideText";
 
 // 外枠のコンポーネント

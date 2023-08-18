@@ -5,7 +5,7 @@ import toast, { Toaster } from "react-hot-toast";
 import { useQuery, useMutation } from "urql";
 import { Box, Container, Stack, Typography } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
-import LogoImg from "../../../assets/logo.png";
+import LogoImg from "../../../assets/logo.svg";
 import CreditScoreIcon from "@mui/icons-material/CreditScore";
 import { useState } from "react";
 
@@ -71,7 +71,7 @@ const ChatPage = () => {
                 <Stack alignItems="center">
                   <Stack direction="row" alignItems="flex-end" spacing={2} sx={{ mb: 5 }}>
                     <Typography variant="h5">Generate sentences Powered by</Typography>
-                    <img src={LogoImg} alt="LexiChain" style={{ height: "35px", width: "210px", marginBottom: "4px" }} />
+                    <img src={LogoImg} alt="LEXINET" style={{ height: "35px", width: "210px", marginBottom: "4px" }} />
                   </Stack>
                 </Stack>
                 <Stack direction="row" alignItems="flex-end" justifyContent="flex-end" spacing={2}>
