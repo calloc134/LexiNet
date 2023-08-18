@@ -73,7 +73,7 @@ type User {
   handle: String!
   screen_name: String!
   bio: String!
-  tickets_count: PositiveInt!
+  tickets_count: Int!
   created_at: DateTime!
   updated_at: DateTime!
   role: Role!
@@ -85,8 +85,8 @@ type User {
 type Transaction {
   transaction_uuid: UUID!
   transaction_hash: String!
-  tickets_count: PositiveInt!
-  amount: PositiveFloat!
+  tickets_count: Int!
+  amount: Float!
   status: TransactionStatus!
   created_at: DateTime!
   updated_at: DateTime!
