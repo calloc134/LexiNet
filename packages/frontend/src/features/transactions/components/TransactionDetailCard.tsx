@@ -148,7 +148,7 @@ const TransactionDetailCard = ({ transaction: transaction_frag }: { transaction:
         </CardBody>
         <CardFooter className="flex flex-col justify-end items-end">
           <Button color="primary" variant="shadow" onClick={onOpen}>
-            トランザクション送信
+            送金
           </Button>
         </CardFooter>
       </Card>
@@ -156,9 +156,9 @@ const TransactionDetailCard = ({ transaction: transaction_frag }: { transaction:
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader>トランザクションの送信</ModalHeader>
+              <ModalHeader>送金</ModalHeader>
               <ModalBody>
-                <p>トランザクションを送信しますか？</p>
+                <p>送金を行いますか？</p>
               </ModalBody>
               <ModalFooter>
                 <Button
