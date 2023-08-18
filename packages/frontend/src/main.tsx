@@ -10,6 +10,7 @@ import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 import { MetaMaskProvider } from "@metamask/sdk-react";
 import { is_dev } from "./env";
 import "src/index.css";
+import { Box } from "@mui/material";
 
 export const Main = () => {
   return (
@@ -37,7 +38,9 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
       >
         <UrqlProvider>
           <NextUIProvider>
-            <Main />
+            <Box className="fontfamily">
+              <Main />
+            </Box>
           </NextUIProvider>
         </UrqlProvider>
       </MetaMaskProvider>
